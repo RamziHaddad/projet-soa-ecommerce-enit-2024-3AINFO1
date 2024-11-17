@@ -40,20 +40,21 @@ public class InventoryController {
     }
 
     @PatchMapping("/reserve")
-    public ResponseEntity<Void> reserveProduct(
-            @RequestBody @Valid InventoryRequest request
-    ){
-        inventoryService.reserveProduct(request);
+    public ResponseEntity<Void> reserveProducts(
+            @RequestBody @Valid List<InventoryRequest> requests
+    ) {
+        inventoryService.reserveProduct(requests);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PatchMapping("/cancel")
-    public ResponseEntity<Void> cancelOrder(
-            @RequestBody @Valid InventoryRequest request
-    ){
-        inventoryService.cancelOrder(request);
+    public ResponseEntity<Void> cancelOrders(
+            @RequestBody @Valid List<InventoryRequest> requests
+    ) {
+        inventoryService.cancelOrder(requests);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
 
 
 }

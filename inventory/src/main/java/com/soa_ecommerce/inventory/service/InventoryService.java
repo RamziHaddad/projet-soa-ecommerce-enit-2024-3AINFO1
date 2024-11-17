@@ -86,5 +86,50 @@ public class InventoryService {
     }
 
 
+    //Reservation d'un produit
+
+    public void reserveProduct(List<InventoryRequest> requests) {
+        requests.forEach(request -> {
+            // Récupérer l'inventaire pour le produit
+            Inventory inventory = inventoryRepository.findById(request.productId())
+                    .orElseThrow(() -> new EntityNotFoundException("Product " + request.productId() + " not found"));
+
+            // Vérifier si la quantité totale est suffisante pour la réservation
+            if (inventory.getTotalQuantity() < request.quantity()) {
+                throw new InsufficientQuantityException(
+                        "Insufficient quantity for product " + request.productId());
+            }
+
+            // Mettre à jour les quantités
+            inventory.setTotalQuantity(inventory.getTotalQuantity() - request.quantity());
+            inventory.setReservedQuantity(inventory.getReservedQuantity() + request.quantity());
+
+            // Sauvegarder les changements dans la base de données
+            inventoryRepository.save(inventory);
+        });
+    }
+
+    //annulation de la commande
+    public void cancelOrder(List<InventoryRequest> requests) {
+        requests.forEach(request -> {
+            // Récupérer l'inventaire pour le produit
+            Inventory inventory = inventoryRepository.findById(request.productId())
+                    .orElseThrow(() -> new EntityNotFoundException("Product " + request.productId() + " not found"));
+
+            // Vérifier si la quantité réservée est suffisante pour l'annulation
+            if (inventory.getReservedQuantity() < request.quantity()) {
+                throw new InsufficientQuantityException(
+                        "Cannot release this product " + request.productId() + ": insufficient reserved quantity");
+            }
+
+            // Mettre à jour les quantités
+            inventory.setTotalQuantity(inventory.getTotalQuantity() + request.quantity());
+            inventory.setReservedQuantity(inventory.getReservedQuantity() - request.quantity());
+
+            // Sauvegarder les changements dans la base de données
+            inventoryRepository.save(inventory);
+        });
+    }
+
 
 }
