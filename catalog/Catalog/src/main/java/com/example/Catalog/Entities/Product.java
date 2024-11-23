@@ -8,14 +8,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Product {
     @Id
-    @GeneratedValue()
-     private  Long id ;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
     private String name;
     private String description;
     private double price;

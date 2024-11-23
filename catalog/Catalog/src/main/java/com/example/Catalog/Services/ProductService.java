@@ -46,18 +46,18 @@ public class ProductService {
     }
 
     public ProductResponseDTO findbyId(Long id) {
-        Optional<Product> product = productRepo.findById(id);
+        Optional<Product> product = Optional.ofNullable(productRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Product not found ")));
         ProductResponseDTO productResponseDTO = modelMapper.map(product, ProductResponseDTO.class);
         return productResponseDTO;
     }
 
     public void delete(Long id) {
-        productRepo.findById(id);
+        productRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Product Not Found"));;
         productRepo.deleteById(id);
     }
 
     public ProductResponseDTO update(ProductRequestDTO productRequestDTO, Long id) {
-        Optional<Product> productOptional = productRepo.findById(id);
+        Optional<Product> productOptional = Optional.ofNullable(productRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Assure Not Found")));;
         if (productOptional.isPresent()) {
             Product product = productOptional.get();
             modelMapper.map(productRequestDTO, product);
