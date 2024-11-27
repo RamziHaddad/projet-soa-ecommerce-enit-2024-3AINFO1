@@ -1,0 +1,21 @@
+# Search Microservice
+
+Le microservice **Search** utilise **Spring Boot** (Java 17) et **Apache Solr** pour l'indexation et la recherche de produits.
+
+## Prérequis
+- **Java 17** installé.
+- **Apache Solr** configuré sur [http://localhost:8983/solr](http://localhost:8983/solr).
+
+## Lancer le projet
+1. Clonez le repo et exécutez :
+   ```bash
+   ./mvnw spring-boot:run
+Endpoints principaux
+
+Indexation : l'APi rest
+POST http://localhost:8080/index
+
+Configuration
+Dans application.properties :
+spring.data.solr.host=http://localhost:8983/solr
+spring.data.solr.core=products
