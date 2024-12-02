@@ -719,4 +719,3 @@ C:\Users\USER\Desktop\3 INFO 01\Architectures microservices\projet-soa-ecommerce
 C:\Users\USER\Desktop\3 INFO 01\Architectures microservices\projet-soa-ecommerce-enit-2024-3AINFO1\reviews\obj\Debug\net8.0\ReviewService.pdb
 C:\Users\USER\Desktop\3 INFO 01\Architectures microservices\projet-soa-ecommerce-enit-2024-3AINFO1\reviews\obj\Debug\net8.0\ReviewService.genruntimeconfig.cache
 C:\Users\USER\Desktop\3 INFO 01\Architectures microservices\projet-soa-ecommerce-enit-2024-3AINFO1\reviews\obj\Debug\net8.0\ref\ReviewService.dll
-C:\Users\USER\Desktop\3 INFO 01\Architectures microservices\projet-soa-ecommerce-enit-2024-3AINFO1\reviews\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

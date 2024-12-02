@@ -22,6 +22,19 @@ namespace ReviewService.Controllers
             {
                 return BadRequest(ModelState);
             }
+
+            if (review.ProduitId == null || review.UserId == null)
+            {
+                return BadRequest(new { message = "ProduitId et UserId ne peuvent pas être null." });
+            }
+
+            var existingReview = await _context.Reviews
+                .FirstOrDefaultAsync(r => r.ProduitId == review.ProduitId && r.UserId == review.UserId);
+
+            if (existingReview != null)
+            {
+                return Conflict(new { message = "Vous avez déjà ajouté un avis pour ce produit." });
+            }
             _context.Reviews.Add(review);
             await _context.SaveChangesAsync();
 

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "5QiCxiuU8ic=",
+  "dgSpecHash": "JTK8AlNlux4=",
   "success": true,
   "projectFilePath": "C:\\Users\\USER\\Desktop\\3 INFO 01\\Architectures microservices\\projet-soa-ecommerce-enit-2024-3AINFO1\\reviews\\ReviewService.csproj",
   "expectedPackageFiles": [
@@ -138,7 +138,7 @@
     "C:\\Users\\USER\\.nuget\\packages\\system.security.permissions\\7.0.0\\system.security.permissions.7.0.0.nupkg.sha512",
     "C:\\Users\\USER\\.nuget\\packages\\system.security.principal.windows\\5.0.0\\system.security.principal.windows.5.0.0.nupkg.sha512",
     "C:\\Users\\USER\\.nuget\\packages\\system.text.encodings.web\\7.0.0\\system.text.encodings.web.7.0.0.nupkg.sha512",
-    "C:\\Users\\USER\\.nuget\\packages\\system.text.json\\7.0.3\\system.text.json.7.0.3.nupkg.sha512",
+    "C:\\Users\\USER\\.nuget\\packages\\system.text.json\\7.0.4\\system.text.json.7.0.4.nupkg.sha512",
     "C:\\Users\\USER\\.nuget\\packages\\system.threading.channels\\7.0.0\\system.threading.channels.7.0.0.nupkg.sha512",
     "C:\\Users\\USER\\.nuget\\packages\\system.threading.tasks.dataflow\\7.0.0\\system.threading.tasks.dataflow.7.0.0.nupkg.sha512",
     "C:\\Users\\USER\\.nuget\\packages\\system.windows.extensions\\7.0.0\\system.windows.extensions.7.0.0.nupkg.sha512"
@@ -148,7 +148,7 @@
       "code": "NU1903",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "Le package 'System.Text.Json' 7.0.3 présente une vulnérabilité de gravité élevé(e) connue, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w.",
+      "message": "Le package 'System.Text.Json' 7.0.4 présente une vulnérabilité de gravité élevé(e) connue, https://github.com/advisories/GHSA-hh2w-p6rv-4g7w.",
       "libraryId": "System.Text.Json",
       "targetGraphs": [
         "net8.0"
