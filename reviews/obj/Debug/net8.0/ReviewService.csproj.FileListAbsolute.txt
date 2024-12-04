@@ -700,8 +700,6 @@ C:\Users\USER\Desktop\3 INFO 01\Architectures microservices\projet-soa-ecommerce
 C:\Users\USER\Desktop\3 INFO 01\Architectures microservices\projet-soa-ecommerce-enit-2024-3AINFO1\reviews\obj\Debug\net8.0\ReviewService.csproj.CoreCompileInputs.cache
 C:\Users\USER\Desktop\3 INFO 01\Architectures microservices\projet-soa-ecommerce-enit-2024-3AINFO1\reviews\obj\Debug\net8.0\ReviewService.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\USER\Desktop\3 INFO 01\Architectures microservices\projet-soa-ecommerce-enit-2024-3AINFO1\reviews\obj\Debug\net8.0\ReviewService.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\USER\Desktop\3 INFO 01\Architectures microservices\projet-soa-ecommerce-enit-2024-3AINFO1\reviews\obj\Debug\net8.0\ReviewService.RazorAssemblyInfo.cache
-C:\Users\USER\Desktop\3 INFO 01\Architectures microservices\projet-soa-ecommerce-enit-2024-3AINFO1\reviews\obj\Debug\net8.0\ReviewService.RazorAssemblyInfo.cs
 C:\Users\USER\Desktop\3 INFO 01\Architectures microservices\projet-soa-ecommerce-enit-2024-3AINFO1\reviews\obj\Debug\net8.0\ReviewService.sourcelink.json
 C:\Users\USER\Desktop\3 INFO 01\Architectures microservices\projet-soa-ecommerce-enit-2024-3AINFO1\reviews\obj\Debug\net8.0\scopedcss\bundle\ReviewService.styles.css
 C:\Users\USER\Desktop\3 INFO 01\Architectures microservices\projet-soa-ecommerce-enit-2024-3AINFO1\reviews\obj\Debug\net8.0\staticwebassets.build.json

@@ -43,7 +43,7 @@ namespace ReviewService.Controllers
 
 
         [HttpGet("{idProduit}")]
-        public async Task<ActionResult<IEnumerable<ReviewService.Models.Review>>> GetReviewsByProduct(int idProduit)
+        public async Task<ActionResult<IEnumerable<ReviewService.Models.Review>>> GetReviewsByProduct(Guid idProduit)
         {
             var reviews = await _context.Reviews
                 .Where(r => r.ProduitId == idProduit)

@@ -12,8 +12,8 @@ using ReviewService.Data;
 namespace ReviewService.Migrations
 {
     [DbContext(typeof(ReviewContext))]
-    [Migration("20241110105314_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20241204111305_UseUUIDForIdentifiers")]
+    partial class UseUUIDForIdentifiers
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,29 +27,28 @@ namespace ReviewService.Migrations
 
             modelBuilder.Entity("ReviewService.Models.Review", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
 
                     b.Property<string>("Commentaire")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<int>("ProduitId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ProduitId")
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("dateCreation")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("reviews", (string)null);
                 });
 #pragma warning restore 612, 618
         }
