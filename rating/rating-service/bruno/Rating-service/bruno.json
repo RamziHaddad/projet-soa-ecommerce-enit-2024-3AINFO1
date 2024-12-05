@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Rating-service",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
