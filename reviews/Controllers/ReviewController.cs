@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ReviewService.Auth;
 using ReviewService.Data;
 
 namespace ReviewService.Controllers
@@ -9,15 +10,27 @@ namespace ReviewService.Controllers
     public class ReviewController : Controller
     {
         private readonly ReviewContext _context;
+        private readonly IAuthService _authService;
 
-        public ReviewController(ReviewContext context)
+        public ReviewController(ReviewContext context, IAuthService authService)
         {
             _context = context;
+            _authService = authService;
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddReview([FromBody] ReviewService.Models.Review review)
+        public async Task<IActionResult> AddReview([FromBody] ReviewService.Models.Review review, [FromHeader] string token)
         {
+            // Vérifie le token d'authentification
+            Guid userId = await _authService.GetUserIdFromTokenAsync(token);
+            if (userId == Guid.Empty)
+            {
+                return Unauthorized("Token d'authentification invalide.");
+            }
+
+            // Si l'utilisateur est authentifié, on ajoute l'avis
+            review.UserId = userId;
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

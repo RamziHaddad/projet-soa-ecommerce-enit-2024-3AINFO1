@@ -1,11 +1,15 @@
 using Microsoft.EntityFrameworkCore;
+using ReviewService.Auth;
 using ReviewService.Data;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Configuration de la chaîne de connexion pour PostgreSQL
 builder.Services.AddDbContext<ReviewContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IAuthService, MockAuthService>();
 
 // Ajout des services nécessaires
 builder.Services.AddControllers();
