@@ -1,27 +1,20 @@
-package com.example.Catalog.Entities;
+package com.example.Catalog.DTO.ProductDTO;
 
-import jakarta.persistence.*;
+import com.example.Catalog.Entities.ProductCategory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Product {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+public class ProductResponseDTO {
     private UUID id;
     private String name;
     private String description;
     private double price;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CategoryId")
-
     private ProductCategory category;
-
 
 }

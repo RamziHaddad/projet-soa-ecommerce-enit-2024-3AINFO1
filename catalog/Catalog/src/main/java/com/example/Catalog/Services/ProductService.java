@@ -1,18 +1,18 @@
 package com.example.Catalog.Services;
 
-import com.example.Catalog.DTO.ProductRequestDTO;
-import com.example.Catalog.DTO.ProductResponseDTO;
+import com.example.Catalog.DTO.ProductDTO.ProductRequestDTO;
+import com.example.Catalog.DTO.ProductDTO.ProductResponseDTO;
 import com.example.Catalog.Entities.Product;
 import com.example.Catalog.Repository.ProductRepo;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.Banner;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,19 +45,19 @@ public class ProductService {
         }).collect(Collectors.toList());
     }
 
-    public ProductResponseDTO findbyId(Long id) {
+    public ProductResponseDTO findbyId(UUID id) {
         Optional<Product> product = Optional.ofNullable(productRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Product not found ")));
         ProductResponseDTO productResponseDTO = modelMapper.map(product, ProductResponseDTO.class);
         return productResponseDTO;
     }
 
-    public void delete(Long id) {
+    public void delete(UUID id) {
         productRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Product Not Found"));;
         productRepo.deleteById(id);
     }
 
-    public ProductResponseDTO update(ProductRequestDTO productRequestDTO, Long id) {
-        Optional<Product> productOptional = Optional.ofNullable(productRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Assure Not Found")));;
+    public ProductResponseDTO update(ProductRequestDTO productRequestDTO, UUID id) {
+        Optional<Product> productOptional = Optional.ofNullable(productRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Product Not Found")));;
         if (productOptional.isPresent()) {
             Product product = productOptional.get();
             modelMapper.map(productRequestDTO, product);
