@@ -17,29 +17,25 @@ public class CartController {
 
     private final CartService cartService;
 
-    // Constructor with CartService dependency injection
     public CartController(CartService cartService) {
         this.cartService = cartService;
     }
 
-    // Get cart by customer ID
     @GetMapping("/{customerId}")
     public ResponseEntity<CartDTO> getCart(@PathVariable UUID customerId) {
         Cart cart = cartService.getCart(customerId);
 
-        // If no cart found, create a new one
+        
         if (cart == null) {
-            cart = new Cart(); // Create a new empty cart if none exists
+            cart = new Cart(); 
         }
 
         return ResponseEntity.ok(CartMapper.toDTO(cart));
     }
 
-    // Create a new customer and generate UUID (new cart can be created for the customer)
     @GetMapping("/create")
     public ResponseEntity<String> createNewCustomer() {
         UUID newCustomerId = UUID.randomUUID();
-        // Optionally, create an empty cart for the new customer
         cartService.createCart(newCustomerId);
         return ResponseEntity.ok("New customer created with UUID: " + newCustomerId.toString());
     }
@@ -47,11 +43,11 @@ public class CartController {
     @PostMapping("/create")
     public ResponseEntity<CartDTO> createCart(@RequestBody CartDTO cartDTO) {
         try {
-            Cart newCart = cartService.createCart(cartDTO);  // Passing the CartDTO to the service
-            return ResponseEntity.status(HttpStatus.CREATED).body(CartMapper.toDTO(newCart));  // Mapping and sending back the response
+            Cart newCart = cartService.createCart(cartDTO);  
+            return ResponseEntity.status(HttpStatus.CREATED).body(CartMapper.toDTO(newCart));  
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);  // Handle the error gracefully
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);  
         }
     }
 
@@ -66,7 +62,6 @@ public class CartController {
     }
 
 
-    // Remove item from cart
     @DeleteMapping("/{customerId}/remove/{itemId}")
     public ResponseEntity<CartDTO> removeItemFromCart(
             @PathVariable UUID customerId,
@@ -76,7 +71,6 @@ public class CartController {
         return ResponseEntity.ok(CartMapper.toDTO(updatedCart));
     }
 
-    // Clear all items in the cart
     @DeleteMapping("/{customerId}/clear")
     public ResponseEntity<Void> clearCart(@PathVariable UUID customerId) {
         cartService.clearCart(customerId);

@@ -16,16 +16,13 @@ public class CartItemMapper {
     }
 
     public static CartItem toModel(CartItemDTO dto) {
-        // Initialize a new CartItem object
         CartItem cartItem = new CartItem();
 
-        // Map basic properties from DTO to CartItem
         cartItem.setItemId(dto.getItemId());
         cartItem.setName(dto.getName());
         cartItem.setPrice(dto.getPrice());
         cartItem.setQuantity(dto.getQuantity());
 
-        // Recalculate totalPrice based on price and quantity
         double totalPrice = dto.getPrice() * dto.getQuantity();
         cartItem.setTotalPrice(totalPrice);
 

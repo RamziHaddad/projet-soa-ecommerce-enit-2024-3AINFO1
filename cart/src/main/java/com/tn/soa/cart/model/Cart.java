@@ -39,18 +39,15 @@ public class Cart {
         this.cartItems = cartItems;
     }
 
-    // Method to calculate the total price of the cart
     public double calculateTotal() {
         return cartItems.stream().mapToDouble(CartItem::getTotalPrice).sum();
     }
 
-    // Method to add an item to the cart
     public void addItem(CartItem item) {
         cartItems.add(item);
-        item.setCart(this);  // Set the cart reference in the item
+        item.setCart(this);  
     }
 
-    // Method to remove an item from the cart
     public void removeItem(CartItem item) {
         cartItems.remove(item);
     }

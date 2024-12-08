@@ -28,18 +28,18 @@ public class CartService {
 
     public Cart getCart(UUID customerId) {
         Optional<Cart> cartOptional = cartRepository.findById(customerId);
-        return cartOptional.orElse(new Cart()); // Return a new empty cart if not found
+        return cartOptional.orElse(new Cart()); 
     }
 
     public Cart addItemToCart(UUID customerId, CartItemDTO itemDTO) {
         Optional<Cart> cartOptional = cartRepository.findById(customerId);
-        Cart cart = cartOptional.orElse(new Cart()); // Create a new cart if none exists
+        Cart cart = cartOptional.orElse(new Cart()); 
 
         CartItem newItem = CartItemMapper.toModel(itemDTO);
         enrichItemDetails(newItem);
 
         cart.addItem(newItem);
-        cartRepository.save(cart); // Save updated cart to database
+        cartRepository.save(cart); 
         return cart;
     }
 
@@ -65,17 +65,17 @@ public class CartService {
         Cart cart = cartOptional.orElse(new Cart());
 
         cart.getCartItems().removeIf(item -> item.getItemId().equals(itemId));
-        cartRepository.save(cart); // Save updated cart to database
+        cartRepository.save(cart); 
         return cart;
     }
 
     public void clearCart(UUID customerId) {
-        cartRepository.deleteById(customerId); // Delete the cart from the database
+        cartRepository.deleteById(customerId); 
     }
 
     public Cart createCart(UUID customerId) {
         Cart newCart = new Cart();
-        cartRepository.save(newCart); // Save the new cart to the database
+        cartRepository.save(newCart); 
         return newCart;
     }
 
@@ -88,8 +88,8 @@ public class CartService {
                 newCart.addItem(newItem);
             }
         }
-        UUID newCustomerId = UUID.randomUUID();  // Generate a new UUID for the new customer
-        cartRepository.save(newCart);  // Save with the new UUID to the database
+        UUID newCustomerId = UUID.randomUUID(); 
+        cartRepository.save(newCart); 
         return newCart;
     }
 }
