@@ -15,6 +15,7 @@ builder.Services.AddScoped<IAuthService, MockAuthService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
@@ -31,6 +32,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.Urls.Add("http://localhost:8088");
 
 app.UseHttpsRedirection();
 

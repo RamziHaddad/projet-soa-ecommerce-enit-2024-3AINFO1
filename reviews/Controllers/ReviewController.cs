@@ -11,63 +11,71 @@ namespace ReviewService.Controllers
     {
         private readonly ReviewContext _context;
         private readonly IAuthService _authService;
+        private readonly HttpClient _httpClient;
+        private readonly string _catalogServiceUrl = "http://localhost:8082/product";
 
-        public ReviewController(ReviewContext context, IAuthService authService)
+        public ReviewController(HttpClient httpClient, ReviewContext context, IAuthService authService)
         {
             _context = context;
             _authService = authService;
+            _httpClient = httpClient;
         }
 
         [HttpPost]
         public async Task<IActionResult> AddReview([FromBody] ReviewService.Models.Review review, [FromHeader] string token)
         {
             // Vérifie le token d'authentification
-            Guid userId = await _authService.GetUserIdFromTokenAsync(token);
+            var userId = await _authService.GetUserIdFromTokenAsync(token);
             if (userId == Guid.Empty)
             {
-                return Unauthorized("Token d'authentification invalide.");
+                return Unauthorized(new { message = "Token d'authentification invalide." });
             }
 
-            // Si l'utilisateur est authentifié, on ajoute l'avis
-            review.UserId = userId;
-
-            if (!ModelState.IsValid)
+            // Vérifie la validité des entrées
+            if (review.ProduitId == Guid.Empty || review.UserId == Guid.Empty)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "ProduitId et UserId ne peuvent pas être null ou vides." });
             }
 
-            if (review.ProduitId == null || review.UserId == null)
+            // Vérifier si le produit existe dans le catalogue
+            var response = await _httpClient.GetAsync($"{_catalogServiceUrl}/id/{review.ProduitId}");
+            if (!response.IsSuccessStatusCode)
             {
-                return BadRequest(new { message = "ProduitId et UserId ne peuvent pas être null." });
+                return NotFound(new { message = "Produit non trouvé dans le catalogue." });
             }
 
+            // Vérifier s'il existe déjà un avis pour ce produit et cet utilisateur
             var existingReview = await _context.Reviews
-                .FirstOrDefaultAsync(r => r.ProduitId == review.ProduitId && r.UserId == review.UserId);
+                .FirstOrDefaultAsync(r => r.ProduitId == review.ProduitId && r.UserId == userId);
 
             if (existingReview != null)
             {
                 return Conflict(new { message = "Vous avez déjà ajouté un avis pour ce produit." });
             }
+
+            // Ajout de l'avis
+            review.UserId = userId;
             _context.Reviews.Add(review);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetReviewsByProduct), new { idProduit = review.ProduitId }, review);
         }
 
-
         [HttpGet("{idProduit}")]
         public async Task<ActionResult<IEnumerable<ReviewService.Models.Review>>> GetReviewsByProduct(Guid idProduit)
         {
-            var reviews = await _context.Reviews
+            // Récupère les avis pour un produit spécifique
+            var commentaires = await _context.Reviews
                 .Where(r => r.ProduitId == idProduit)
+                .Select(r => r.Commentaire)
                 .ToListAsync();
 
-            if (!reviews.Any())
+            if (!commentaires.Any())
             {
-                return NotFound("Aucun avis trouvé pour ce produit.");
+                return NotFound(new { message = "Aucun avis trouvé pour ce produit." });
             }
 
-            return Ok(reviews);
+            return Ok(commentaires);
         }
     }
 }
