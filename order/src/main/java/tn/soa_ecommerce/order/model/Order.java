@@ -1,5 +1,6 @@
 package tn.soa_ecommerce.order.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +21,9 @@ public class Order {
     private UUID cartID;
     private Double totalAmount;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<OrderItem> items;
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
 }
 

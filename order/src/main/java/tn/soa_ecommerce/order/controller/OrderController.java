@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import tn.soa_ecommerce.order.dto.OrderDTO;
 import tn.soa_ecommerce.order.mapper.Mapper;
 import tn.soa_ecommerce.order.model.Order;
-import tn.soa_ecommerce.order.model.OrderStatus;
 import tn.soa_ecommerce.order.service.OrderService;
 
 import java.util.Optional;
@@ -56,7 +55,7 @@ public class OrderController {
         }
     }
 
-    @PutMapping("/cancel/{id}")
+   /* @PutMapping("/cancel/{id}")
     public ResponseEntity<String> cancelOrder(@PathVariable UUID id) {
         try {
             boolean isCancelled = orderService.cancelOrder(id);
@@ -69,5 +68,5 @@ public class OrderController {
             System.out.println("error: " + e.getMessage());
             return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
+    }*/
 }
