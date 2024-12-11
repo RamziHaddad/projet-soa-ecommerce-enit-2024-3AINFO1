@@ -38,11 +38,11 @@ public class AuthController {
                 .collect(Collectors.toList());
 
         // Check roles without the "ROLE_" prefix
-        if (roles.contains("ecommerce-admin")) {
+        if (roles.contains("ROLE_ecommerce-admin")) {
             return "Welcome, E-Commerce Admin!";
-        } else if (roles.contains("ecommerce-manager")) {
+        } else if (roles.contains("ROLE_ecommerce-manager")) {
             return "Welcome, Manager!";
-        } else if (roles.contains("ecommerce-user")) {
+        } else if (roles.contains("ROLE_ecommerce-user")) {
             return "Welcome, User!";
         }
 
@@ -71,7 +71,7 @@ public class AuthController {
      */
     @GetMapping("/has-admin-role")
     public boolean hasAdminRole(Authentication authentication) {
-        return hasRole(authentication, "ecommerce-admin");
+        return hasRole(authentication, "ROLE_ecommerce-admin");
     }
 
     /**
@@ -79,7 +79,7 @@ public class AuthController {
      */
     @GetMapping("/has-manager-role")
     public boolean hasManagerRole(Authentication authentication) {
-        return hasRole(authentication, "ECOMMERCE_MANAGER");
+        return hasRole(authentication, "ROLE_ecommerce-manager");
     }
 
     /**
@@ -87,7 +87,7 @@ public class AuthController {
      */
     @GetMapping("/has-user-role")
     public boolean hasUserRole(Authentication authentication) {
-        return hasRole(authentication, "ECOMMERCE_USER");
+        return hasRole(authentication, "ROLE_ecommerce-user");
     }
 
     /**
