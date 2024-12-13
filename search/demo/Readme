@@ -13,9 +13,35 @@ Le microservice **Search** utilise **Spring Boot** (Java 17) et **Apache Solr** 
 Endpoints principaux
 
 Indexation : l'APi rest
-POST http://localhost:8080/index
+POST http://localhost:8080/products/index
+(ou le port 8081 si le port 8080 est utilisé)
 
 Configuration
 Dans application.properties :
 spring.data.solr.host=http://localhost:8983/solr
 spring.data.solr.core=products
+
+Recherche par similarité de produit(idProduit) en utilisant le champs description:
+API: GET http://localhost:8081/products/{id}/similar
+ Exemple : GET http://localhost:8081/products/3/similar (Rechercher les produits similaire au produit qui a l'id =3)
+   Résultat :
+   [
+                  {
+                      "id": "4",
+                      "description": [
+                          "High-performance laptop for gamers with Intel i7, 16GB RAM, and NVIDIA GTX 1650."
+                      ]
+                  },
+                  {
+                      "id": "2",
+                      "description": [
+                          "Laptop MACBOOK"
+                      ]
+                  },
+                  {
+                      "id": "1",
+                      "description": [
+                          "Laptop MSI I5"
+                      ]
+                  }
+   ]

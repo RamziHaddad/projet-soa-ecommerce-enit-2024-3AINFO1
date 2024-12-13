@@ -1,21 +1,19 @@
 package com.example.demo.searchservice.models;
-
 import org.apache.solr.client.solrj.beans.Field;
+
 
 import java.util.List;
 
 public class Product {
-
-    @Field
+    @Field("id")
     private String id;
+    @Field("description")
+    private List<String> description;
 
-    @Field
-    private List<String> description; // Champ description en tant que liste
-
-    // Constructeurs
     public Product() {
     }
 
+    // Constructeur
     public Product(String id, List<String> description) {
         this.id = id;
         this.description = description;
@@ -34,15 +32,12 @@ public class Product {
         return description;
     }
 
+
     public void setDescription(List<String> description) {
         this.description = description;
     }
-
     @Override
     public String toString() {
-        return "Product{" +
-                "id='" + id + '\'' +
-                ", description=" + description +
-                '}';
+        return "Product{id='" + id + "', description=" + description + "}";
     }
 }
