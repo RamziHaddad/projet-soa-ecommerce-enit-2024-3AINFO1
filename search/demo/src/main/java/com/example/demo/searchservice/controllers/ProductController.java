@@ -56,4 +56,18 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // Si aucun produit similaire trouvé
         }
     }
+
+    @GetMapping("/search/text")
+    public ResponseEntity<List<Product>> searchByText(
+            @RequestParam String queryText) {
+        try {
+            List<Product> products = productService.searchByText("products-index", queryText);
+            if (products.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+            }
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 }

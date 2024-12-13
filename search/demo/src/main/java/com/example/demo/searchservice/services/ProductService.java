@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -109,6 +110,44 @@ public class ProductService {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+
+
+    }
+    // Méthode pour rechercher un produit par texte libre
+    public List<Product> searchByText(String core, String queryText) throws Exception {
+        try {
+            SolrQuery solrQuery = new SolrQuery();
+            solrQuery.set("qt", "select");
+            solrQuery.set("q", "description:\"" + queryText + "\"");
+            solrQuery.setRows(10);
+            solrQuery.set("fl", "id,description");
+
+            System.out.println("Query sent to Solr: " + solrQuery.toString());
+
+            QueryResponse response = solrClient.query(core, solrQuery);
+            SolrDocumentList documents = response.getResults();
+
+            System.out.println("Number of documents returned: " + documents.size());
+
+            // Conversion des résultats en objets Product
+            return documents.stream().map(doc -> {
+                String id = (String) doc.getFieldValue("id");
+
+                // Gérer le champ description comme une liste
+                Object descriptionField = doc.getFieldValue("description");
+                List<String> description = null;
+                if (descriptionField instanceof List) {
+                    description = (List<String>) descriptionField;
+                } else if (descriptionField instanceof String) {
+                    description = List.of((String) descriptionField);
+                }
+
+                return new Product(id, description);
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            System.err.println("Error during Solr query: " + e.getMessage());
+            throw new Exception("Error retrieving products by text search from Solr: " + e.getMessage(), e);
         }
     }
 

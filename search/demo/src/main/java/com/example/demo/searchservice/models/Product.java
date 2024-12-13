@@ -1,7 +1,6 @@
 package com.example.demo.searchservice.models;
 import org.apache.solr.client.solrj.beans.Field;
 
-
 import java.util.List;
 
 public class Product {
