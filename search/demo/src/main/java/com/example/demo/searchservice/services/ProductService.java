@@ -2,11 +2,14 @@ package com.example.demo.searchservice.services;
 
 import com.example.demo.searchservice.models.Product;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
-import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -14,36 +17,39 @@ public class ProductService {
     @Autowired
     private SolrClient solrClient;
 
-    public void addProduct(String coreName, Product product) {
+    // Méthode pour indexer un produit dans Solr
+    public void addProduct(String core, Product product) throws Exception {
+        solrClient.addBean(core, product);
+        solrClient.commit(core);
+    }
+
+    // Méthode pour récupérer tous les produits
+    public List<Product> getAllProducts() throws Exception {
         try {
-            SolrInputDocument document = new SolrInputDocument();
-            document.addField("id", product.getId());
-            document.addField("description", product.getDescription());
-            System.out.println("Adding product: " + product.getId() + " to Solr core: " + coreName);
+            SolrQuery query = new SolrQuery("*:*");
+            QueryResponse response = solrClient.query("products-index", query);
+            SolrDocumentList documents = response.getResults();
 
-            solrClient.add(coreName, document);  // Ajouter le document à Solr
-            solrClient.commit(coreName);  // Valider les changements dans Solr
+            System.out.println("Number of products found: " + documents.size());
 
-            System.out.println("Product indexed successfully");
+            // Conversion des documents en objets Product
+            return documents.stream().map(doc -> {
+                String id = (String) doc.getFieldValue("id");
+
+                // Gérer le champ "description" (liste ou chaîne unique)
+                Object descriptionField = doc.getFieldValue("description");
+                List<String> description = null;
+                if (descriptionField instanceof List) {
+                    description = (List<String>) descriptionField;
+                } else if (descriptionField instanceof String) {
+                    description = List.of((String) descriptionField); // Convertir une chaîne en liste
+                }
+
+                return new Product(id, description);
+            }).collect(Collectors.toList());
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error indexing product: " + e.getMessage());
+            throw new Exception("Error retrieving products from Solr: " + e.getMessage(), e);
         }
     }
 
-
-    // Méthode pour récupérer tous les produits (exemple)
-    public List<Product> getAllProducts() {
-        List<Product> products = new ArrayList<>();
-        try {
-            // Ici, vous pourriez récupérer des produits depuis Solr, une base de données ou un autre système
-            // Pour l'exemple, nous ajoutons des produits fictifs
-            products.add(new Product("1", "Product 1 Description"));
-            products.add(new Product("2", "Product 2 Description"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error retrieving products: " + e.getMessage());
-        }
-        return products;
-    }
 }
