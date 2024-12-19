@@ -16,42 +16,48 @@ import java.util.UUID;
 @RequestMapping("/inventory")
 @RequiredArgsConstructor
 public class InventoryController {
+    /*
 
     private final InventoryService inventoryService;
 
     @PutMapping("/{productId}")
-    public ResponseEntity<Void> receiveProduct(
+    public ResponseEntity receiveProduct(
             @PathVariable UUID productId, @RequestParam Integer quantity
     ) {
         inventoryService.receiveProduct(productId, quantity);
         if (inventoryService.isExists(productId)) {
-            return new ResponseEntity<>(HttpStatus.OK); // If product exists, return 200 OK
+            return  ResponseEntity.ok("Product recieved "); // If product exists, return 200 OK
         } else {
-            return new ResponseEntity<>(HttpStatus.CREATED); // If product doesn't exist, return 201 CREATED
+            return  ResponseEntity.status(HttpStatus.CREATED).body("New product created"); // If product doesn't exist, return 201 CREATED
         }
     }
 
-    @PatchMapping("/release")
-    public ResponseEntity<Void> releaseProduct(
-            @RequestBody @Valid List<InventoryRequest> request
-    ) {
-        inventoryService.releaseOrder(request);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
     @PatchMapping("/reserve")
-    public ResponseEntity<Void> reserveProducts(
+    public ResponseEntity<?> reserveProducts(
             @RequestBody @Valid List<InventoryRequest> requests
     ) {
         inventoryService.reserveProduct(requests);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return  ResponseEntity.ok("Reservation done");
     }
 
+    @PatchMapping("/release")
+    public ResponseEntity<?> releaseProduct(
+             @RequestBody @Valid List<InventoryRequest> request
+    ){
+        inventoryService.releaseOrder(request);
+        return  ResponseEntity.ok("Order released successfully");
+    }
+
+
+
     @PatchMapping("/cancel")
-    public ResponseEntity<Void> cancelOrders(
+    public ResponseEntity<?> cancelOrders(
             @RequestBody @Valid List<InventoryRequest> requests
     ) {
         inventoryService.cancelOrder(requests);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return  ResponseEntity.ok("Order cancelled");
     }
+*/
+
+
 }
