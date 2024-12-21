@@ -1,0 +1,22 @@
+meta {
+  name: Login User
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8092/login
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer
+}
+
+body:json {
+  {
+    "username": "aziz2",
+    "password": "azizaziz2"
+  }
+}

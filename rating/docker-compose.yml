@@ -1,0 +1,61 @@
+services:
+  rating_service:
+    build:
+      context: ./rating-service
+      dockerfile: rating.Dockerfile
+    ports:
+      - "8092:8092"
+    environment:
+      - DB_HOST=db_rating
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=azerty
+      - DB_NAME=db_rating
+    depends_on:
+      db_rating:
+        condition: service_healthy
+    networks:
+      - global_network
+
+  db_rating:
+    image: pgvector/pgvector:pg15
+    environment:
+      POSTGRES_DB: db_rating
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: azerty
+    ports:
+      - 5440:5432
+    volumes:
+      - ./rating-service/schema/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - global_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d db_rating"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  populate_db:
+    build:
+      context: ./rating-service/utils
+      dockerfile: populate.Dockerfile
+    volumes:
+      - ./rating-service/utils:/app
+      - /app/node_modules
+    environment:
+      DB_HOST: db_rating
+      DB_NAME: db_rating
+      DB_USER: postgres
+      DB_PASSWORD: azerty
+      DB_PORT: 5432
+    depends_on:
+      db_rating:
+        condition: service_healthy
+    networks:
+      - global_network
+    restart: on-failure
+
+networks:
+  global_network:
+    driver: bridge

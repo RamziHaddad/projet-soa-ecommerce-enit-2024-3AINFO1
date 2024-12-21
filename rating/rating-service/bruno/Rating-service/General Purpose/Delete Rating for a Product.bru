@@ -1,0 +1,17 @@
+meta {
+  name: Delete Rating for a Product
+  type: http
+  seq: 3
+}
+
+delete {
+  url: http://localhost:8092/products/rating
+  body: json
+  auth: token
+}
+
+body:json {
+  {
+    "product_id": 1
+  }
+}
