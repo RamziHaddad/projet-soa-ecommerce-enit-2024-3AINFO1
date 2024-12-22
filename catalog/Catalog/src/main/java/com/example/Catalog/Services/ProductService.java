@@ -1,13 +1,12 @@
 package com.example.Catalog.Services;
 
-import com.example.Catalog.DTO.ProductRequestDTO;
-import com.example.Catalog.DTO.ProductResponseDTO;
+import com.example.Catalog.DTO.ProductDTO.ProductRequestDTO;
+import com.example.Catalog.DTO.ProductDTO.ProductResponseDTO;
 import com.example.Catalog.Entities.Product;
 import com.example.Catalog.Repository.ProductRepo;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.Banner;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -58,7 +57,9 @@ public class ProductService {
     }
 
     public ProductResponseDTO update(ProductRequestDTO productRequestDTO, UUID id) {
-        Optional<Product> productOptional = Optional.ofNullable(productRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Assure Not Found")));;
+
+        Optional<Product> productOptional = Optional.ofNullable(productRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Product Not Found")));;
+
         if (productOptional.isPresent()) {
             Product product = productOptional.get();
             modelMapper.map(productRequestDTO, product);

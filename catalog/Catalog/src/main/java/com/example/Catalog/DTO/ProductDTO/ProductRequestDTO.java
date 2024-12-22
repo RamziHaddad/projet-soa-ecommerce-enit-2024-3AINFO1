@@ -1,5 +1,6 @@
-package com.example.Catalog.DTO;
+package com.example.Catalog.DTO.ProductDTO;
 
+import com.example.Catalog.Entities.ProductCategory;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,8 @@ public class ProductRequestDTO {
         private String name;
         private String description;
         private double price;
+        private ProductCategory category;
+
 
 
 
