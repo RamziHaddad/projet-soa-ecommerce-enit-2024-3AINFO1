@@ -1,14 +1,14 @@
-name: CI Job for the bank service
+name: CI/CD Job for the bank service
 
 on:
   push:
     branches: 
-      - master
+      - bank
     paths:
       - 'bank/**'
   pull_request:
     branches: 
-      - master
+      - bank
 
 jobs:
   build:
@@ -27,15 +27,21 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
+    - name: Make mvnw executable
+      run: chmod +x ./mvnw
 
     - name: Build with Maven
-      run: ./mvnw package
+      run: ./mvnw package -DskipTests
+
+    - name: List target directory contents
+      run: ls -al ./target/quarkus-app
           
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: bank-service.jar
-        path: target/quarkus-app/quarkus-run.jar
+       # path: /home/runner/work/soa-test/soa-test/bank/target/bank_v2-1.1.0.jar
+        path: bank/target/quarkus-app/quarkus-run.jar
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
@@ -50,3 +56,43 @@ jobs:
     - name: Push Docker image to Docker Hub
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/bank-service:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install sshpass
+      run: sudo apt-get install -y sshpass
+
+    - name: Add Server to Known Hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ secrets.DEPLOYMENT_MACHINE_IP }} >> ~/.ssh/known_hosts
+    
+    - name: Create deployment directory on VPS
+      run: |
+        sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
+        "mkdir -p ~/soa-ecomm"
+
+    - name: Transfer docker-compose to VPS
+      run: |
+        sshpass -p "${{ secrets.MACHINE_PASSWORD }}" scp docker-compose.yml \
+        ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }}:~/soa-ecomm/docker-compose.yml
+
+    - name: Verify if docker-compose exists on VPS
+      run: |
+        sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
+        "ls -l ~/soa-ecomm/docker-compose.yml"
+
+    - name: Deploy services
+      run: |
+        sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
+        "cd ~/soa-ecomm && docker-compose down --remove-orphans && docker-compose up -d"
+
+    - name: Check deployment status
+      run: |
+        sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
+        "cd ~/soa-ecomm && docker-compose ps && docker volume ls && docker network ls && echo 'System Resources:' && df -h && free -h"

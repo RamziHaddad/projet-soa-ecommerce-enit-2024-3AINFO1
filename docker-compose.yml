@@ -9,70 +9,107 @@ services:
       POSTGRES_PASSWORD: azerty
     ports:
       - 5433:5432
-  db_catalog:
-    image: pgvector/pgvector:pg15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bank_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+  bank_service:
+    image: ahmeddhibi/bank-service:latest
     environment:
-      POSTGRES_DB: db_catalog
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: azerty
+      QUARKUS_HTTP_PORT: 8099
+      BANK_PAYMENT_LATENCY_MS: 0
+      BANK_PAYMENT_ERROR_PROBABILITY: 0
+      QUARKUS_DATASOURCE_DB_KIND: postgresql
+      QUARKUS_DATASOURCE_USERNAME: postgres
+      QUARKUS_DATASOURCE_PASSWORD: azerty
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://db_bank:5432/db_bank
+      QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: drop-and-create
+      QUARKUS_HIBERNATE_ORM_LOG_SQL: "true"
+      QUARKUS_HTTP_ACCESS_LOG_ENABLED: "true"
+      QUARKUS_SWAGGER_UI_ALWAYS_INCLUDE: "true"
     ports:
-      - 5434:5432
-  db_inventory:
-    image: pgvector/pgvector:pg15
-    environment:
-      POSTGRES_DB: db_inventory
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: azerty
-    ports:
-      - 5435:5432
-  db_mailing:
-    image: pgvector/pgvector:pg15
-    environment:
-      POSTGRES_DB: db_mailing
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: azerty
-    ports:
-      - 5436:5432
-  db_order:
-    image: pgvector/pgvector:pg15
-    environment:
-      POSTGRES_DB: db_order
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: azerty
-    ports:
-      - 5437:5432
-  db_payment:
-    image: pgvector/pgvector:pg15
-    environment:
-      POSTGRES_DB: db_payment
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: azerty
-    ports:
-      - 5438:5432
-  db_pricing:
-    image: pgvector/pgvector:pg15
-    environment:
-      POSTGRES_DB: db_pricing
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: azerty
-    ports:
-      - 5439:5432
-  db_rating:
-    image: pgvector/pgvector:pg15
-    environment:
-      POSTGRES_DB: db_rating
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: azerty
-    ports:
-      - 5440:5432
-  db_reviews:
-    image: pgvector/pgvector:pg15
-    environment:
-      POSTGRES_DB: db_reviews
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: azerty
-    ports:
-      - 5441:5432
+      - "8099:8099"
+    depends_on:
+      db_bank:
+        condition: service_healthy
+    networks:
+      - bank_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8099/q/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+#  db_catalog:
+#    image: pgvector/pgvector:pg15
+#    environment:
+#      POSTGRES_DB: db_catalog
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: azerty
+#    ports:
+#      - 5434:5432
+#  db_inventory:
+#    image: pgvector/pgvector:pg15
+#    environment:
+#      POSTGRES_DB: db_inventory
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: azerty
+#    ports:
+#      - 5435:5432
+#  db_mailing:
+#    image: pgvector/pgvector:pg15
+#    environment:
+#      POSTGRES_DB: db_mailing
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: azerty
+#    ports:
+#      - 5436:5432
+#  db_order:
+#    image: pgvector/pgvector:pg15
+#    environment:
+#      POSTGRES_DB: db_order
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: azerty
+#    ports:
+#      - 5437:5432
+#  db_payment:
+#    image: pgvector/pgvector:pg15
+#    environment:
+#      POSTGRES_DB: db_payment
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: azerty
+#    ports:
+#      - 5438:5432
+#  db_pricing:
+#    image: pgvector/pgvector:pg15
+#    environment:
+#      POSTGRES_DB: db_pricing
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: azerty
+#    ports:
+#      - 5439:5432
+#  db_rating:
+#    image: pgvector/pgvector:pg15
+#    environment:
+#      POSTGRES_DB: db_rating
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: azerty
+#    ports:
+#      - 5440:5432
+#  db_reviews:
+#    image: pgvector/pgvector:pg15
+#    environment:
+#      POSTGRES_DB: db_reviews
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: azerty
+#    ports:
+#      - 5441:5432
 #   mongo_example:
 #     image: mongo:4.4
 #     environment:
@@ -126,5 +163,9 @@ services:
 #     - bash
 #     - "-c"
 #     - "precreate-core products-index; exec solr -f"
-# volumes:
-#   data:
+networks:
+  bank_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
