@@ -24,56 +24,57 @@ public class CartController {
     @GetMapping("/{customerId}")
     public ResponseEntity<CartDTO> getCart(@PathVariable UUID customerId) {
         Cart cart = cartService.getCart(customerId);
-
-        
         if (cart == null) {
-            cart = new Cart(); 
+            cart = new Cart();
         }
-
         return ResponseEntity.ok(CartMapper.toDTO(cart));
-    }
-
-    @GetMapping("/create")
-    public ResponseEntity<String> createNewCustomer() {
-        UUID newCustomerId = UUID.randomUUID();
-        cartService.createCart(newCustomerId);
-        return ResponseEntity.ok("New customer created with UUID: " + newCustomerId.toString());
     }
 
     @PostMapping("/create")
     public ResponseEntity<CartDTO> createCart(@RequestBody CartDTO cartDTO) {
         try {
-            Cart newCart = cartService.createCart(cartDTO);  
-            return ResponseEntity.status(HttpStatus.CREATED).body(CartMapper.toDTO(newCart));  
+            Cart newCart = cartService.createCart(cartDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(CartMapper.toDTO(newCart));
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);  
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
-
 
     @PostMapping("/{customerId}/add")
     public ResponseEntity<CartDTO> addItemToCart(
             @PathVariable UUID customerId,
-            @RequestBody CartItemDTO itemDTO
-    ) {
-        Cart updatedCart = cartService.addItemToCart(customerId, itemDTO);
-        return ResponseEntity.ok(CartMapper.toDTO(updatedCart));
+            @RequestBody CartItemDTO itemDTO) {
+        try {
+            Cart updatedCart = cartService.addItemToCart(customerId, itemDTO);
+            return ResponseEntity.ok(CartMapper.toDTO(updatedCart));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
-
 
     @DeleteMapping("/{customerId}/remove/{itemId}")
     public ResponseEntity<CartDTO> removeItemFromCart(
             @PathVariable UUID customerId,
-            @PathVariable UUID itemId
-    ) {
-        Cart updatedCart = cartService.removeItemFromCart(customerId, itemId);
-        return ResponseEntity.ok(CartMapper.toDTO(updatedCart));
+            @PathVariable UUID itemId) {
+        try {
+            Cart updatedCart = cartService.removeItemFromCart(customerId, itemId);
+            return ResponseEntity.ok(CartMapper.toDTO(updatedCart));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @DeleteMapping("/{customerId}/clear")
     public ResponseEntity<Void> clearCart(@PathVariable UUID customerId) {
-        cartService.clearCart(customerId);
-        return ResponseEntity.noContent().build();
+        try {
+            cartService.clearCart(customerId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

@@ -1,7 +1,6 @@
 package com.tn.soa.cart.mapper;
 
 import com.tn.soa.cart.dto.CartDTO;
-import com.tn.soa.cart.dto.CartItemDTO;
 import com.tn.soa.cart.model.Cart;
 
 import java.util.stream.Collectors;
