@@ -87,7 +87,7 @@ jobs:
     - name: Check and stop bank-service container if running
       run: |
         sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
-        "if docker ps --format '{{.Names}}' | grep -q '^bank_service$'; then docker stop bank_service && docker rm bank_service; fi"
+        "if docker ps --format '{{.Names}}' | grep -q '^bank-service$'; then docker stop bank-service && docker rm bank-service; fi"
 
     - name: Check and create global network if not exists
       run: |
@@ -115,7 +115,7 @@ jobs:
         sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
         "if [ \"${{ env.db_status }}\" = 'healthy' ]; then \
           echo 'Starting only bank_service'; \
-          cd ~/soa-ecomm/bank-service && docker-compose up -d bank_service; \
+          cd ~/soa-ecomm/bank-service && docker-compose up -d bank-service; \
         else \
           echo 'Starting all services'; \
           cd ~/soa-ecomm/bank-service && docker-compose up -d; \

@@ -19,8 +19,9 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
-  bank_service:
+  bank-service:
     image: ahmeddhibi/bank-service:latest
+    container_name: bank-service
     environment:
       QUARKUS_HTTP_PORT: 8099
       BANK_PAYMENT_LATENCY_MS: 0
