@@ -39,7 +39,7 @@ services:
       db_bank:
         condition: service_healthy
     networks:
-      - bank_network
+      - bank-network
       - global-network
     restart: unless-stopped
     healthcheck:
