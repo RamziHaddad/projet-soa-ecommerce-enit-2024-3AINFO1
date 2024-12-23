@@ -164,6 +164,7 @@ services:
 #     - bash
 #     - "-c"
 #     - "precreate-core products-index; exec solr -f"
+
 networks:
   bank-network:
     driver: bridge
