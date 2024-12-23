@@ -40,6 +40,7 @@ services:
         condition: service_healthy
     networks:
       - bank_network
+      - global-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8099/q/health"]
@@ -166,6 +167,8 @@ services:
 networks:
   bank_network:
     driver: bridge
+  global-network:
+    external: true
 
 volumes:
   postgres_data:
