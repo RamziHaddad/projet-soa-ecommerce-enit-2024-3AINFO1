@@ -12,7 +12,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - bank_network
+      - bank-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -165,7 +165,7 @@ services:
 #     - "-c"
 #     - "precreate-core products-index; exec solr -f"
 networks:
-  bank_network:
+  bank-network:
     driver: bridge
   global-network:
     external: true
