@@ -81,18 +81,22 @@ jobs:
       run: |
         sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
         "if [ -f ~/soa-ecomm/bank-service/docker-compose.yml ]; then rm ~/soa-ecomm/bank-service/docker-compose.yml; fi"
+
     - name: Check and stop bank-service container if running
       run: |
         sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
         "if docker ps --format '{{.Names}}' | grep -q '^bank_service$'; then docker stop bank_service && docker rm bank_service; fi"
+
     - name: Check and create global network if not exists
       run: |
         sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
         "if ! docker network ls --format '{{.Name}}' | grep -q '^global-network$'; then docker network create global-network; fi"
+
     - name: Transfer docker-compose to VPS
       run: |
         sshpass -p "${{ secrets.MACHINE_PASSWORD }}" scp docker-compose.yml \
         ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }}:~/soa-ecomm/bank-service/docker-compose.yml
+
     - name: Check the status of db_bank container
       run: |
         sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
@@ -106,7 +110,7 @@ jobs:
 
     - name: Load db_bank status
       run: source /tmp/db_bank_status.sh
-      
+
     - name: Deploy bank-service
       run: |
         sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
@@ -118,6 +122,7 @@ jobs:
           echo 'Starting all services'; \
           cd ~/soa-ecomm/bank-service && docker-compose up -d; \
         fi"
+        
     - name: Check deployment status
       run: |
         sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
