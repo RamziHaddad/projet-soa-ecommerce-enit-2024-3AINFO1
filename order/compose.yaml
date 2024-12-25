@@ -1,0 +1,82 @@
+version: '2'
+
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    ports:
+      - "2181:2181"
+    networks:
+      - app-network
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    ports:
+      - "9092:9092"
+    networks:
+      - app-network
+    expose:
+      - "9093"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: "my-topic:1:1"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  order:
+    image: order:latest
+    container_name: order
+    ports:
+      - "8084:8084"
+    networks:
+      - app-network
+    environment:
+      SPRING_APPLICATION_NAME: order
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db_order:5432/db_order
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "false"
+      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
+      SPRING_JPA_DATABASE: postgresql
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SERVER_PORT: 8084
+      SPRING_KAFKA_BOOTSTRAP-SERVERS: kafka:9092
+      SPRING_KAFKA_CONSUMER_GROUP_ID: order-group
+      SPRING_KAFKA_CONSUMER_ENABLE_AUTO_COMMIT: "false"
+
+      KAFKA_TOPIC_INVENTORY_RESERVE_REQUEST: inventory-reserve-request
+      KAFKA_TOPIC_PAYMENT_PROCESS_REQUEST: payment-process-request
+      KAFKA_TOPIC_SHIPPING_SCHEDULE_REQUEST: shipping-schedule-request
+      KAFKA_TOPIC_NOTIFICATION_SEND_REQUEST: notification-send-request
+
+      KAFKA_TOPIC_INVENTORY_RESERVE_RESULT: inventory-reserve-result
+      KAFKA_TOPIC_PAYMENT_PROCESS_RESULT: payment-process-result
+      KAFKA_TOPIC_SHIPPING_SCHEDULE_RESULT: shipping-schedule-result
+      KAFKA_TOPIC_NOTIFICATION_SEND_RESULT: notification-send-result
+
+    depends_on:
+      - kafka
+      - db_order
+  db_order:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: db_order
+    ports:
+      - "5433:5432"
+    networks:
+      - app-network
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db_data:

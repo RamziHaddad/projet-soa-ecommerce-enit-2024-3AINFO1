@@ -2,6 +2,10 @@ package tn.soa_ecommerce.order.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
@@ -19,21 +23,26 @@ import java.util.UUID;
 
 @Service
 public class OrderService {
+    private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
+
     private final OrderRepository orderRepository;
     private final Mapper<Order, OrderDTO> orderMapper;
     private final KafkaMessageProducer kafkaProducer;
     private final ObjectMapper objectMapper;
 
-    // Kafka Topics
-    private static final String INVENTORY_RESERVE_TOPIC = "inventory-reserve-request";
-    private static final String PAYMENT_PROCESS_TOPIC = "payment-process-request";
-    private static final String SHIPPING_SCHEDULE_TOPIC = "shipping-schedule-request";
-    private static final String NOTIFICATION_SEND_TOPIC = "notification-send-request";
+    @Value("${kafka.topic.inventory.reserve.request}")
+    private String inventoryReserveTopic;
 
-    private static final String INVENTORY_RESERVE_RESULT_TOPIC = "inventory-reserve-result";
-    private static final String PAYMENT_PROCESS_RESULT_TOPIC = "payment-process-result";
-    private static final String SHIPPING_SCHEDULE_RESULT_TOPIC = "shipping-schedule-result";
-    private static final String NOTIFICATION_SEND_RESULT_TOPIC = "notification-send-result";
+    @Value("${kafka.topic.payment.process.request}")
+    private String paymentProcessTopic;
+
+    @Value("${kafka.topic.shipping.schedule.request}")
+    private String shippingScheduleTopic;
+
+    @Value("${kafka.topic.notification.send.request}")
+    private String notificationSendTopic;
+
+
 
     public OrderService(
             OrderRepository orderRepository,
@@ -46,17 +55,18 @@ public class OrderService {
         this.objectMapper = objectMapper;
     }
 
-    public OrderDTO createOrder(Order order) throws JsonProcessingException {
+    public OrderDTO createOrder(Order order) {
         try {
             order.setStatus(OrderStatus.CREATED);
             Order savedOrder = orderRepository.save(order);
-            System.out.println(objectMapper.writeValueAsString(savedOrder));
+            logger.info("Created order: {}", savedOrder.getOrderID());
+
             Map<String, Object> inventoryDetails = new HashMap<>();
             inventoryDetails.put("orderId", savedOrder.getOrderID());
-            inventoryDetails.put("Items", order.getItems());
+            inventoryDetails.put("items", order.getItems());
 
             kafkaProducer.sendMessage(
-                    INVENTORY_RESERVE_TOPIC,
+                    inventoryReserveTopic,
                     savedOrder.getOrderID().toString(),
                     inventoryDetails
             );
@@ -64,142 +74,134 @@ public class OrderService {
             return orderMapper.mapTo(savedOrder);
 
         } catch (Exception e) {
+            logger.error("Error creating order", e);
             order.setStatus(OrderStatus.FAILED);
             orderRepository.save(order);
             throw e;
         }
     }
 
-    @KafkaListener(topics = INVENTORY_RESERVE_RESULT_TOPIC, groupId = "order-group")
+    @KafkaListener(topics = "${kafka.topic.inventory.reserve.result}", groupId = "order-group")
     public void handleInventoryReservationResult(String message, Acknowledgment acknowledgment) {
-        try {
-            Map<String, Object> result = objectMapper.readValue(message, Map.class);
-            UUID orderId = UUID.fromString(result.get("orderId").toString());
-            boolean success = (boolean) result.get("success");
-            if (success) {
+        processKafkaMessage(message, acknowledgment, "inventory reservation", (result, orderId) -> {
+            if ((boolean) result.get("success")) {
                 updateOrderStatus(orderId, OrderStatus.RESERVED);
-
-                Optional<Order> orderOptional = getOrderById(orderId);
-                if (orderOptional.isPresent()) {
-                    Order order = orderOptional.get();
-                    System.out.println(objectMapper.writeValueAsString(order));
-
-
-                    Map<String, Object> paymentDetails = new HashMap<>();
-                    paymentDetails.put("orderId", order.getOrderID());
-                    paymentDetails.put("customerId", order.getCustomerID());
-                    paymentDetails.put("totalAmount", order.getTotalAmount());
-
-                    kafkaProducer.sendMessage(
-                            PAYMENT_PROCESS_TOPIC,
-                            orderId.toString(),
-                            paymentDetails
-                    );
-                }
+                sendPaymentRequest(orderId);
             } else {
                 updateOrderStatus(orderId, OrderStatus.FAILED);
             }
-
-
-            acknowledgment.acknowledge();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
     }
 
-    @KafkaListener(topics = PAYMENT_PROCESS_RESULT_TOPIC, groupId = "order-group")
+    @KafkaListener(topics = "${kafka.topic.payment.process.result}", groupId = "order-group")
     public void handlePaymentProcessResult(String message, Acknowledgment acknowledgment) {
-        try {
-            Map<String, Object> result = objectMapper.readValue(message, Map.class);
-            UUID orderId = UUID.fromString(result.get("orderId").toString());
-            boolean success = (boolean) result.get("success");
-
-            if (success) {
+        processKafkaMessage(message, acknowledgment, "payment processing", (result, orderId) -> {
+            if ((boolean) result.get("success")) {
                 updateOrderStatus(orderId, OrderStatus.PAID);
-
-                Optional<Order> orderOptional = getOrderById(orderId);
-                if (orderOptional.isPresent()) {
-                    Order order = orderOptional.get();
-                    System.out.println(objectMapper.writeValueAsString(order));
-
-
-                    Map<String, Object> shippingDetails = new HashMap<>();
-                    shippingDetails.put("orderId", order.getOrderID());
-                    shippingDetails.put("customerId", order.getCustomerID());
-
-                    kafkaProducer.sendMessage(
-                            SHIPPING_SCHEDULE_TOPIC,
-                            orderId.toString(),
-                            shippingDetails
-                    );
-                }
+                sendShippingRequest(orderId);
             } else {
                 updateOrderStatus(orderId, OrderStatus.FAILED);
             }
-
-            acknowledgment.acknowledge();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
     }
 
-    @KafkaListener(topics = SHIPPING_SCHEDULE_RESULT_TOPIC, groupId = "order-group")
+    @KafkaListener(topics = "${kafka.topic.shipping.schedule.result}", groupId = "order-group")
     public void handleShippingScheduleResult(String message, Acknowledgment acknowledgment) {
-        try {
-            Map<String, Object> result = objectMapper.readValue(message, Map.class);
-            UUID orderId = UUID.fromString(result.get("orderId").toString());
-            boolean success = (boolean) result.get("success");
-
-            if (success) {
+        processKafkaMessage(message, acknowledgment, "shipping scheduling", (result, orderId) -> {
+            if ((boolean) result.get("success")) {
                 updateOrderStatus(orderId, OrderStatus.SHIPPING_SCHEDULED);
-
-                Optional<Order> orderOptional = getOrderById(orderId);
-                if (orderOptional.isPresent()) {
-                    Order order = orderOptional.get();
-                    System.out.println(objectMapper.writeValueAsString(order));
-                    Map<String, Object> mailingDetails = new HashMap<>();
-                    mailingDetails.put("orderId", order.getOrderID());
-                    mailingDetails.put("customerId", order.getCustomerID());
-
-                    kafkaProducer.sendMessage(
-                            NOTIFICATION_SEND_TOPIC,
-                            orderId.toString(),
-                            mailingDetails
-                    );
-                }
-            } else {
-               updateOrderStatus(orderId, OrderStatus.FAILED);
-            }
-
-            acknowledgment.acknowledge();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @KafkaListener(topics = NOTIFICATION_SEND_RESULT_TOPIC, groupId = "order-group")
-    public void handleNotificationSendResult(String message, Acknowledgment acknowledgment) {
-        try {
-            Map<String, Object> result = objectMapper.readValue(message, Map.class);
-            UUID orderId = UUID.fromString(result.get("orderId").toString());
-            boolean success = (boolean) result.get("success");
-
-            if (success) {
-                updateOrderStatus(orderId, OrderStatus.COMPLETED);
-                Optional<Order> orderOptional = getOrderById(orderId);
-                if (orderOptional.isPresent()) {
-                    Order order = orderOptional.get();
-                    System.out.println(objectMapper.writeValueAsString(order));
-                }
-
+                sendNotificationRequest(orderId);
             } else {
                 updateOrderStatus(orderId, OrderStatus.FAILED);
             }
+        });
+    }
 
+    @KafkaListener(topics = "${kafka.topic.notification.send.result}", groupId = "order-group")
+    public void handleNotificationSendResult(String message, Acknowledgment acknowledgment) {
+        processKafkaMessage(message, acknowledgment, "notification sending", (result, orderId) -> {
+            if ((boolean) result.get("success")) {
+                updateOrderStatus(orderId, OrderStatus.COMPLETED);
+                logger.info("Order {} completed successfully", orderId);
+            } else {
+                updateOrderStatus(orderId, OrderStatus.FAILED);
+            }
+        });
+    }
+
+    private void processKafkaMessage(String message, Acknowledgment acknowledgment,
+                                     String operation, ResultHandler handler) {
+        try {
+            Map<String, Object> result = objectMapper.readValue(message, Map.class);
+            UUID orderId = UUID.fromString(result.get("orderId").toString());
+
+            handler.handle(result, orderId);
             acknowledgment.acknowledge();
+
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error processing {} result", operation, e);
         }
+    }
+
+    private void sendPaymentRequest(UUID orderId) {
+        getOrderById(orderId).ifPresent(order -> {
+            try {
+                Map<String, Object> paymentDetails = new HashMap<>();
+                paymentDetails.put("orderId", order.getOrderID());
+                paymentDetails.put("customerId", order.getCustomerID());
+                paymentDetails.put("totalAmount", order.getTotalAmount());
+
+                kafkaProducer.sendMessage(
+                        paymentProcessTopic,
+                        orderId.toString(),
+                        paymentDetails
+                );
+                logger.info("Sent payment request for order: {}", orderId);
+            } catch (Exception e) {
+                logger.error("Error sending payment request for order: {}", orderId, e);
+                updateOrderStatus(orderId, OrderStatus.FAILED);
+            }
+        });
+    }
+
+    private void sendShippingRequest(UUID orderId) {
+        getOrderById(orderId).ifPresent(order -> {
+            try {
+                Map<String, Object> shippingDetails = new HashMap<>();
+                shippingDetails.put("orderId", order.getOrderID());
+                shippingDetails.put("customerId", order.getCustomerID());
+
+                kafkaProducer.sendMessage(
+                        shippingScheduleTopic,
+                        orderId.toString(),
+                        shippingDetails
+                );
+                logger.info("Sent shipping request for order: {}", orderId);
+            } catch (Exception e) {
+                logger.error("Error sending shipping request for order: {}", orderId, e);
+                updateOrderStatus(orderId, OrderStatus.FAILED);
+            }
+        });
+    }
+
+    private void sendNotificationRequest(UUID orderId) {
+        getOrderById(orderId).ifPresent(order -> {
+            try {
+                Map<String, Object> notificationDetails = new HashMap<>();
+                notificationDetails.put("orderId", order.getOrderID());
+                notificationDetails.put("customerId", order.getCustomerID());
+
+                kafkaProducer.sendMessage(
+                        notificationSendTopic,
+                        orderId.toString(),
+                        notificationDetails
+                );
+                logger.info("Sent notification request for order: {}", orderId);
+            } catch (Exception e) {
+                logger.error("Error sending notification request for order: {}", orderId, e);
+                updateOrderStatus(orderId, OrderStatus.FAILED);
+            }
+        });
     }
 
     public Optional<Order> getOrderById(UUID id) {
@@ -207,11 +209,15 @@ public class OrderService {
     }
 
     public void updateOrderStatus(UUID orderId, OrderStatus status) {
-        Optional<Order> orderOptional = orderRepository.findById(orderId);
-        if (orderOptional.isPresent()) {
-            Order order = orderOptional.get();
+        orderRepository.findById(orderId).ifPresent(order -> {
             order.setStatus(status);
             orderRepository.save(order);
-        }
+            logger.info("Updated order {} status to {}", orderId, status);
+        });
+    }
+
+    @FunctionalInterface
+    private interface ResultHandler {
+        void handle(Map<String, Object> result, UUID orderId);
     }
 }
