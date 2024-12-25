@@ -69,7 +69,7 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: db_order
     ports:
-      - 5433:5432
+      - 5434:5432
     networks:
       - order-network
     volumes:
