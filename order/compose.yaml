@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 
 services:
   zookeeper:
@@ -6,14 +6,14 @@ services:
     ports:
       - "2181:2181"
     networks:
-      - app-network
+      - global-network
 
   kafka:
     image: wurstmeister/kafka:latest
     ports:
       - "9092:9092"
     networks:
-      - app-network
+      - global-network
     expose:
       - "9093"
     environment:
@@ -25,13 +25,14 @@ services:
       KAFKA_CREATE_TOPICS: "my-topic:1:1"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-  order:
-    image: order:latest
-    container_name: order
+  order-service:
+    image: ahmeddhibi/order-service:latest
+    container_name: order-service
     ports:
-      - "8084:8084"
+      - 8084:8084
     networks:
-      - app-network
+      - global-network
+      - order-network
     environment:
       SPRING_APPLICATION_NAME: order
       SPRING_DATASOURCE_URL: jdbc:postgresql://db_order:5432/db_order
@@ -68,15 +69,17 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: db_order
     ports:
-      - "5433:5432"
+      - 5433:5432
     networks:
-      - app-network
+      - order-network
     volumes:
       - db_data:/var/lib/postgresql/data
 
 networks:
-  app-network:
+  order-network:
     driver: bridge
+  global-network:
+    external: true
 
 volumes:
   db_data:

@@ -1,0 +1,149 @@
+name: CI/CD Job for the bank service
+
+on:
+  push:
+    branches: 
+      - order
+    paths:
+      - 'order/**'
+  pull_request:
+    branches: 
+      - order
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./order
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+    - name: Make mvnw executable
+      run: chmod +x ./mvnw
+
+    - name: Build with Maven
+      run: ./mvnw package -DskipTests
+
+    - name: List target directory contents
+      run: ls -al ./target/
+          
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: bank-service.jar
+       # path: /home/runner/work/soa-test/soa-test/bank/target/bank_v2-1.1.0.jar
+        path: order/target/*.jar
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build Docker image
+      run: |
+        docker build  -t ${{ secrets.DOCKER_USERNAME }}/order-service:latest .
+
+    - name: Push Docker image to Docker Hub
+      run: |
+        docker push ${{ secrets.DOCKER_USERNAME }}/order-service:latest
+
+  deploy:
+    needs: build 
+
+    runs-on: ubuntu-latest 
+
+    steps: 
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install sshpass
+      run: sudo apt-get install -y sshpass
+
+    - name: Add Server to Known Hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ secrets.DEPLOYMENT_MACHINE_IP }} >> ~/.ssh/known_hosts
+
+    - name: Create deployment directory structure on VPS
+      run: |
+        sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
+        "mkdir -p ~/soa-ecomm/order-service"
+        
+    - name: Check and clean up docker-compose in order-service folder
+      run: |
+        sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
+        "if [ -f ~/soa-ecomm/order-service/docker-compose.yml ]; then rm ~/soa-ecomm/order-service/docker-compose.yml; fi"
+
+    - name: Check and stop bank-service container if running
+      run: |
+        sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
+        "if docker ps --format '{{.Names}}' | grep -q '^order-service$'; then docker stop order-service && docker rm order-service; fi"
+
+    - name: Check and create global network if not exists
+      run: |
+        sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
+        "if ! docker network ls --format '{{.Name}}' | grep -q '^global-network$'; then docker network create global-network; fi"
+
+    - name: Transfer docker-compose to VPS
+      run: |
+        sshpass -p "${{ secrets.MACHINE_PASSWORD }}" scp docker-compose.yml \
+        ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }}:~/soa-ecomm/order-service/docker-compose.yml
+
+    - name: Check the status of db_order container
+      id: db_check
+      run: |
+        STATUS=$(sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
+        "if docker ps --filter 'name=db_order' --filter 'health=healthy' --format '{{.Names}}' | grep -q '^db_order$'; then \
+          echo 'healthy'; \
+        else \
+          echo 'unhealthy'; \
+        fi")
+        echo "db_status=$STATUS" >> $GITHUB_ENV
+
+    - name: Check the status of Zookeeper container
+      id: zookeeper_check
+      run: |
+        STATUS=$(sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
+        "if docker ps --filter 'name=zookeeper' --filter 'health=healthy' --format '{{.Names}}' | grep -q '^zookeeper$'; then \
+          echo 'healthy'; \
+        else \
+          echo 'unhealthy'; \
+        fi")
+        echo "zookeeper_status=$STATUS" >> $GITHUB_ENV
+
+     - name: Check the status of Kafka container
+      id: kafka_check
+      run: |
+        STATUS=$(sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
+        "if docker ps --filter 'name=kafka' --filter 'health=healthy' --format '{{.Names}}' | grep -q '^kafka$'; then \
+          echo 'healthy'; \
+        else \
+          echo 'unhealthy'; \
+        fi")
+        echo "kafka_status=$STATUS" >> $GITHUB_ENV
+    
+    - name: Deploy order-service
+      run: |
+        sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
+        "if [ \"${{ env.db_status }}\" = 'healthy' ] && [ \"${{ env.kafka_status }}\" = 'healthy' ] && [ \"${{ env.zookeeper_status }}\" = 'healthy' ]; then \
+          echo 'Starting only order_service'; \
+          cd ~/soa-ecomm/order-service && docker-compose up -d order-service; \
+        else \
+          echo 'Stopping all services and restarting'; \
+          cd ~/soa-ecomm/order-service && docker-compose down && docker-compose up -d; \
+        fi"
+
+    - name: Check deployment status
+      run: |
+        sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
+        "cd ~/soa-ecomm/order-service && docker-compose ps && docker volume ls && docker network ls && echo 'System Resources:' && df -h && free -h"
