@@ -121,7 +121,7 @@ jobs:
         fi")
         echo "zookeeper_status=$STATUS" >> $GITHUB_ENV
 
-     - name: Check the status of Kafka container
+    - name: Check the status of Kafka container
       id: kafka_check
       run: |
         STATUS=$(sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
