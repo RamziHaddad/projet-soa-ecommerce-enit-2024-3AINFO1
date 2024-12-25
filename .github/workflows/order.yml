@@ -1,4 +1,4 @@
-name: CI/CD Job for the bank service
+name: CI/CD Job for the order service
 
 on:
   push:
