@@ -12,7 +12,7 @@ const getCartesBancaires = async (req, res) => {
 }
 
 const getCartesBancairesById = async (req, res) => {
-    const id = parseInt(req.params.iduser)
+    const id = req.params.iduser 
 
     try {
         const data = await pool.query(queries.getCartesBancairesById, [id])

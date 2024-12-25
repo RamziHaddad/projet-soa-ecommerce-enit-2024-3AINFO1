@@ -41,8 +41,21 @@ const getPaymentByIdExplicit = async (req, res) => {
         res.status(200).send(data.rows)
     } catch (err) {
         console.log(err)
+        res.sendStatus(500)
         //throw err;
     }  
+}
+
+getPaymentResult = async (req, res) => {
+    const id = req.params.id
+
+    try {
+        const data = await pool.query(queries.getPaymentResult, [id])
+        res.status(200).send(data.rows)
+    } catch (err) {
+        console.log(err)
+        res.sendStatus(500)
+    }
 }
 
 const addPayment = async (req, res) => {
@@ -82,6 +95,7 @@ module.exports = {
     getAllPaymentsExplicit,
     getPaymentById,
     getPaymentByIdExplicit, 
+    getPaymentResult,
     addPayment,
     paymentWentThrough
 }

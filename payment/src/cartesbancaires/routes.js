@@ -4,7 +4,7 @@ const controller = require('./controller');
 const router = Router();
 
 router.get('/', controller.getCartesBancaires);
-router.get('/:iduser', controller.getCartesBancaires);
+router.get('/:iduser', controller.getCartesBancairesById);
 
 router.post('/', controller.addCarteBancaire);
 
