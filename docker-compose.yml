@@ -8,7 +8,6 @@ services:
       - 8084:8084
     networks:
       - global-network
-      - bank-network
     environment:
       SPRING_APPLICATION_NAME: order
       SPRING_DATASOURCE_URL: jdbc:postgresql://bank-service-db_bank-1:5432/db_order
