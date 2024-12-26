@@ -13,7 +13,6 @@ import tn.soa_ecommerce.order.model.OrderItem;
 
 import java.util.*;
 
-
 @Service
 public class InventoryService {
 
