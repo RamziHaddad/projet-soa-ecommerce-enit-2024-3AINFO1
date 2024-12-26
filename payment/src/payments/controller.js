@@ -59,10 +59,10 @@ getPaymentResult = async (req, res) => {
 }
 
 const addPayment = async (req, res) => {
-    const { amount, cardNumber, cardCode, customerId } = req.body
+    const { amount, id, customer_id } = req.body
 
     try {
-        await pool.query(queries.addPayment, [amount, cardNumber, cardCode, customerId])
+        await pool.query(queries.addPayment, [amount, id, customer_id])
         res.status(200).send("Successfully added payment")
     } catch (err) {
         console.log(err)
@@ -71,7 +71,7 @@ const addPayment = async (req, res) => {
 }
 
 const paymentWentThrough = async (req, res) => {
-    const id = parseInt(req.params.iduser)
+    const id = req.params.iduser
     const { codeCarte, codeSecret } = req.body
 
     pool.query(queries.getPaymentById, [id], (errer, results) => {
