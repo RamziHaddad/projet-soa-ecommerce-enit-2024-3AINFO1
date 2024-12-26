@@ -20,11 +20,11 @@ services:
       SPRING_JPA_DATABASE: postgresql
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
       SERVER_PORT: 8084
-      CART_SERVICE_URL: http://cart-service:8081/cart/
-      INVENTORY_SERVICE_URL: http://inventory-service:8083/inventory/reserve
-      PAYMENT_SERVICE_URL: http://payment-service:8085/payment/process
-      SHIPPING_SERVICE_URL: http://shipping-service:8090/shipping/schedule
-      MAIL_SERVICE_URL: http://mail-service:8091/mail/send
+      CART_SERVICE_URL: http://cart-service:8081/cart
+      INVENTORY_SERVICE_URL: http://inventory-service:8083/inventory
+      PAYMENT_SERVICE_URL: http://payment-service:8085/payment
+      SHIPPING_SERVICE_URL: http://shipping-service:8090/shipping
+      MAIL_SERVICE_URL: http://mail-service:8091/mail
 networks:
 #  bank-network:
 #    external: true
