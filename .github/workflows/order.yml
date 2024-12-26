@@ -103,7 +103,7 @@ jobs:
       id: db_check
       run: |
         STATUS=$(sshpass -p "${{ secrets.MACHINE_PASSWORD }}" ssh ${{ secrets.MACHINE_USERNAME }}@${{ secrets.DEPLOYMENT_MACHINE_IP }} \
-        "if docker ps --filter 'name=db_bank' --filter 'health=healthy' --format '{{.Names}}' | grep -q '^db_bank$'; then \
+        "if docker ps --filter 'name=bank-service-db_bank-1' --filter 'health=healthy' --format '{{.Names}}' | grep -q '^bank-service-db_bank-1$'; then \
           echo 'healthy'; \
         else \
           echo 'unhealthy'; \

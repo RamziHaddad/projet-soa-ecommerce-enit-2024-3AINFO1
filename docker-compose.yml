@@ -11,7 +11,7 @@ services:
       - bank-network
     environment:
       SPRING_APPLICATION_NAME: order
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db_bank:5432/db_order
+      SPRING_DATASOURCE_URL: jdbc:postgresql://bank-service-db_bank-1:5432/db_order
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: azerty
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
@@ -26,9 +26,6 @@ services:
       PAYMENT_SERVICE_URL: http://payment-service:8085/payment/process
       SHIPPING_SERVICE_URL: http://shipping-service:8090/shipping/schedule
       MAIL_SERVICE_URL: http://mail-service:8091/mail/send
-    depends_on:
-      bank-service-db_bank-1:
-        condition: service_healthy
 networks:
   bank-network:
     external: true
