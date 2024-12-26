@@ -71,9 +71,8 @@ const addPayment = async (req, res) => {
 }
 
 const paymentWentThrough = async (req, res) => {
-    const id = req.params.iduser
-    const { codeCarte, codeSecret } = req.body
-
+    const id = req.params.id
+    
     pool.query(queries.getPaymentById, [id], (errer, results) => {
         const noPaymentFound = !results.rows.length;
         if (noPaymentFound) {

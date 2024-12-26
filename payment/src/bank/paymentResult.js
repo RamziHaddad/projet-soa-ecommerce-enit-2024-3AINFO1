@@ -1,6 +1,6 @@
 const axios = require ('axios');
 const queries = require ('../payments/queries');
-const pool = require ('../db');
+const pool = require ('../../db');
 
 const fetchPaymentResult = async (id) => {
     try {

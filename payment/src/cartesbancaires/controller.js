@@ -24,11 +24,11 @@ const getCartesBancairesById = async (req, res) => {
 }
 
 const addCarteBancaire = async (req, res) => {
-    const { codeCarte, codeSecret } = req.body
+    const { iduser, codecarte, codesecret } = req.body
 
     try {
-        await pool.query(queries.addCarteBancaire, [codeCarte, codeSecret])
-        res.status(200).send({"Successfully added card": codeCarte})
+        await pool.query(queries.addCarteBancaire, [iduser, codecarte, codesecret])
+        res.status(200).send({"Successfully added card": codecarte})
     } catch (err) {
         console.log(err)
         res.sendStatus(500)
@@ -36,9 +36,9 @@ const addCarteBancaire = async (req, res) => {
 }
 
 const deleteCarteBancaire = async (req, res) => {
-    const id = parseInt(req.params.iduser)
+    const iduser = req.params.iduser
 
-    pool.query(queries.getCartesBancairesById, [id], (errer, results) => {
+    pool.query(queries.getCartesBancairesById, [iduser], (errer, results) => {
         const noCarteBancaireFound = !results.rows.length;
         if (noCarteBancaireFound) {
             res.send("Card does not exist in the database");
@@ -46,8 +46,8 @@ const deleteCarteBancaire = async (req, res) => {
     })
 
     try {
-        const data = await pool.query(queries.deleteCarteBancaire, [id])
-        res.status(200).send({"Successfully deleted card": id})
+        const data = await pool.query(queries.deleteCarteBancaire, [iduser])
+        res.status(200).send({"Successfully deleted card": iduser})
     } catch (err) {
         console.log(err)
         res.sendStatus(500)

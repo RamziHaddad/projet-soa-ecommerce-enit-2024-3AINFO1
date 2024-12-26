@@ -2,7 +2,7 @@ const getCartesBancaires = 'SELECT * FROM cartesbancaires;';
 const getCartesBancairesById = 'SELECT * FROM cartesbancaires WHERE iduser = $1';
 const getCartesBancairesDetails = 'SELECT codecarte, codesecret FROM cartesbancaires WHERE iduser = $1';
 
-const addCarteBancaire = 'INSERT INTO cartesbancaires (codeCarte, codesecret) VALUES ($1, $2);';
+const addCarteBancaire = 'INSERT INTO cartesbancaires (iduser, codecarte, codesecret) VALUES ($1, $2, $3);';
 
 const deleteCarteBancaire = 'DELETE FROM cartesbancaires WHERE iduser = $1;';
 

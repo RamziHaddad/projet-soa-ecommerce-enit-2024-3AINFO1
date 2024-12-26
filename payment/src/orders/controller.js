@@ -6,7 +6,7 @@ const returnPaymentResult = async (req, res) => {
     const { amount, id, customer_id } = req.body
 
     try {
-        await pool.query(queries.addPayment, [amount, id, customer_id])
+        await pool.query(payments.addPayment, [amount, id, customer_id])
 
         await bank.fetchPaymentResult(id);
 

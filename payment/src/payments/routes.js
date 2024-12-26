@@ -10,7 +10,7 @@ router.get('/:id', controller.getPaymentById);
 router.get('/explicit/:id', controller.getPaymentByIdExplicit);
 router.get('/result/:id', controller.getPaymentResult);
 
-router.post('/process/process/:id', orderController.returnPaymentResult); 
+router.post('/process/', orderController.returnPaymentResult); 
 router.post('/', controller.addPayment);
 
 router.put('/:id', controller.paymentWentThrough);
