@@ -34,7 +34,7 @@ public class InventoryController {
         }
     }
 
-    @PatchMapping("/release/{orderId}")
+    @PostMapping("/release/{orderId}")
     public ResponseEntity<Void> releaseProduct(
              @PathVariable UUID orderId
     ) {
@@ -42,7 +42,7 @@ public class InventoryController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PatchMapping("/reserve")
+    @PostMapping("/reserve")
     public ResponseEntity<Void> reserveProducts(
             @RequestBody @Valid InventoryRequest request
     ) {
@@ -50,7 +50,7 @@ public class InventoryController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PatchMapping("/cancel/{orderId}")
+    @PostMapping("/cancel/{orderId}")
     public ResponseEntity<Void> cancelOrders(
             @PathVariable UUID orderId
     ) {
