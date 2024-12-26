@@ -26,7 +26,7 @@ public class MailingService {
     }
 
     public boolean sendEmail(UUID orderId, UUID customerId, OrderStatus orderStatus, double amount) {
-
+        String sendEmailUrl = mailServiceUrl + "/send";
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("orderId", orderId);
         requestBody.put("customerId", customerId);
@@ -37,10 +37,11 @@ public class MailingService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
-
-        ResponseEntity<Boolean> response = restTemplate.postForEntity(mailServiceUrl, requestEntity, Boolean.class);
-
-        System.out.println(response.getBody());
-        return response.getBody() != null && response.getBody();
+        try{
+            ResponseEntity<Boolean> response = restTemplate.postForEntity(sendEmailUrl, requestEntity, Boolean.class);
+            return response.getBody() != null && response.getBody();
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

@@ -13,7 +13,6 @@ import tn.soa_ecommerce.order.model.OrderItem;
 
 import java.util.*;
 
-
 @Service
 public class InventoryService {
 
@@ -28,7 +27,7 @@ public class InventoryService {
     }
 
     public boolean reserveProducts(UUID orderId, List<OrderItem> products) {
-
+        String reservationUrl = inventoryServiceUrl + "/reserve";
         List<OrderItemDTO> productsDTO = new ArrayList<>();
         for (OrderItem product: products) {
            productsDTO.add(orderItemMapper.mapTo(product));
@@ -41,8 +40,43 @@ public class InventoryService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+        try {
+            ResponseEntity<Boolean> response = restTemplate.postForEntity(reservationUrl, requestEntity, Boolean.class);
+            return response.getBody() != null && response.getBody();
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
-        ResponseEntity<Boolean> response = restTemplate.postForEntity(inventoryServiceUrl, requestEntity, Boolean.class);
-        return response.getBody() != null && response.getBody();
+    public boolean cancelReservation(UUID orderId) {
+        String cancelReservationUrl = inventoryServiceUrl + "/cancel/" + orderId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<Boolean> response = restTemplate.postForEntity(cancelReservationUrl, requestEntity, Boolean.class);
+            return response.getBody() != null && response.getBody();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean releaseReservation(UUID orderId) {
+        String cancelReservationUrl = inventoryServiceUrl + "/release/" + orderId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<Boolean> response = restTemplate.postForEntity(cancelReservationUrl, requestEntity, Boolean.class);
+            return response.getBody() != null && response.getBody();
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

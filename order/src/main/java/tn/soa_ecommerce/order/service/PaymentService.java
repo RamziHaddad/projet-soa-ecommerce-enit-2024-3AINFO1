@@ -25,7 +25,7 @@ public class PaymentService {
     }
 
     public boolean processPayment(UUID orderId, UUID customerId, double amount) {
-
+        String paymentUrl = paymentServiceUrl + "/process/" + orderId;
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("orderId", orderId);
@@ -36,9 +36,30 @@ public class PaymentService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+        try {
+            ResponseEntity<Boolean> response = restTemplate.postForEntity(paymentUrl, requestEntity, Boolean.class);
+            return response.getBody() != null && response.getBody();
+        } catch (Exception e) {
+            return false;
+        }
 
-        ResponseEntity<Boolean> response = restTemplate.postForEntity(paymentServiceUrl+ "/" + orderId, requestEntity, Boolean.class);
-        return response.getBody() != null && response.getBody();
+    }
 
+    public boolean refundPayment(UUID orderId) {
+        /*
+        String refundPaymentUrl = paymentServiceUrl + "/refund/" + orderId;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<Boolean> response = restTemplate.postForEntity(refundPaymentUrl, requestEntity, Boolean.class);
+            return response.getBody() != null && response.getBody();
+        } catch (Exception e) {
+            return false;
+        }
+        */
+        return true;
     }
 }

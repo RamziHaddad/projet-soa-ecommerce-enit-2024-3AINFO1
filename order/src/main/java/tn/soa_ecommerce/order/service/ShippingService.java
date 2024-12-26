@@ -27,7 +27,7 @@ public class ShippingService {
     }
 
     public boolean scheduleShipping(UUID orderId, UUID customerId,List<OrderItem> products) {
-
+        String scheduleShippingUrl = shippingServiceUrl + "/schedule";
         List<OrderItemDTO> productsDTO = new ArrayList<>();
         for (OrderItem product: products) {
             productsDTO.add(orderItemMapper.mapTo(product));
@@ -43,8 +43,11 @@ public class ShippingService {
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<Boolean> response = restTemplate.postForEntity(shippingServiceUrl, requestEntity, Boolean.class);
-        System.out.println(response.getBody());
-        return response.getBody() != null && response.getBody();
+        try{
+            ResponseEntity<Boolean> response = restTemplate.postForEntity(scheduleShippingUrl, requestEntity, Boolean.class);
+            return response.getBody() != null && response.getBody();
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
