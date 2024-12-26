@@ -1,104 +1,129 @@
 package com.soa_ecommerce.inventory.service;
 
 
-import com.soa_ecommerce.inventory.domain.Inventory;
+import com.soa_ecommerce.inventory.domain.Product;
+import com.soa_ecommerce.inventory.domain.Reservation;
+import com.soa_ecommerce.inventory.domain.ReservationDetails;
 import com.soa_ecommerce.inventory.dto.InventoryRequest;
 import com.soa_ecommerce.inventory.exception.InsufficientQuantityException;
-import com.soa_ecommerce.inventory.repository.InventoryRepository;
+import com.soa_ecommerce.inventory.exception.ReservationAlreadyCancelledException;
+import com.soa_ecommerce.inventory.exception.ReservationAlreadyExistsException;
+import com.soa_ecommerce.inventory.exception.ReservationAlreadyReleasedException;
+import com.soa_ecommerce.inventory.repository.ProductRepository;
+import com.soa_ecommerce.inventory.repository.ReservationDetailsRepository;
+import com.soa_ecommerce.inventory.repository.ReservationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
+
 public class InventoryService {
 
-    private final InventoryRepository inventoryRepository;
+    private final ProductRepository productRepository;
+    private final ReservationRepository reservationRepository;
+    private final ReservationDetailsRepository reservationDetailsRepository;
+
+    public InventoryService(ProductRepository productRepository, ReservationRepository reservationRepository, ReservationDetailsRepository reservationDetailsRepository) {
+        this.productRepository = productRepository;
+        this.reservationRepository = reservationRepository;
+        this.reservationDetailsRepository = reservationDetailsRepository;
+    }
+
     //ajout d'un produit dans le stock
+    @Transactional(rollbackFor = Exception.class)
     public void receiveProduct(UUID productId, Integer quantity){
 
-        inventoryRepository.findById(productId).ifPresentOrElse(
-               inventory ->  {
-                   inventory.setTotalQuantity(inventory.getTotalQuantity()+quantity);
-                   inventoryRepository.save(inventory);
+        productRepository.findById(productId).ifPresentOrElse(
+               product ->  {
+                   product.setTotalQuantity(product.getTotalQuantity()+quantity);
+                   productRepository.save(product);
                },
                 ()->{
-                    Inventory newInventory = Inventory.builder()
+                    Product newProduct = Product.builder()
                             .productId(productId)
                             .totalQuantity(quantity)
-                            .reservedQuantity(0)
                             .build();
-                    inventoryRepository.save(newInventory);
+                    productRepository.save(newProduct);
                 }
         );
 
     }
+    public boolean isExists(UUID productId) {
+        return productRepository.existsById(productId);
+    }
 
     //sortie d'une commande
-    public void releaseOrder(List<InventoryRequest> request){
-        request.forEach(inventoryRequest -> {
-            Inventory inventory = inventoryRepository.findById(inventoryRequest.productId())
-                    .orElseThrow(() -> new EntityNotFoundException("Product "+ inventoryRequest.productId() +" not found"));
-
-            if (inventory.getReservedQuantity() <= inventoryRequest.quantity()) {
-                throw new InsufficientQuantityException("Cannot release this product "+ inventoryRequest.productId());
-            }
-
-            inventory.setReservedQuantity(inventory.getReservedQuantity() - inventoryRequest.quantity());
-            inventoryRepository.save(inventory);
-        });
+    @Transactional(rollbackFor = Exception.class)
+    public void releaseOrder(UUID orderId){
+        Reservation reservation=reservationRepository.findByOrderId(orderId).orElseThrow(() -> new EntityNotFoundException("Reservation "+ orderId +" not found"));
+        if(reservation.isReleased()){
+            throw new ReservationAlreadyReleasedException("Reservation already released");
+        }
+        reservationDetailsRepository.deleteAll(reservation.getReservationsDetails());
+        reservation.setReleased(true);
+        reservationRepository.save(reservation);
     }
 
-    public boolean isExists(UUID productId) {
-        return inventoryRepository.existsById(productId);
-    }
+
 
     //Reservation d'un produit
+    @Transactional(rollbackFor = Exception.class)
+    public void reserveProduct(InventoryRequest request) {
+        if(reservationRepository.findByOrderId(request.orderId()).isPresent()){
+            throw new ReservationAlreadyExistsException("Reservation already exists");
+        }
+        Reservation reservation=Reservation.builder()
+                .orderId(request.orderId())
+                .cancelled(false)
+                .released(false)
+                .build();
+        request.products().forEach(orderItem -> {
+            Product product = productRepository.findById(orderItem.productId())
+                    .orElseThrow(() -> new EntityNotFoundException("Product "+ orderItem.productId() +" not found"));
 
-    public void reserveProduct(List<InventoryRequest> requests) {
-        requests.forEach(request -> {
-            // Récupérer l'inventaire pour le produit
-            Inventory inventory = inventoryRepository.findById(request.productId())
-                    .orElseThrow(() -> new EntityNotFoundException("Product " + request.productId() + " not found"));
-
-            // Vérifier si la quantité totale est suffisante pour la réservation
-            if (inventory.getTotalQuantity() < request.quantity()) {
+            if (product.getTotalQuantity() < orderItem.quantity()) {
                 throw new InsufficientQuantityException(
-                        "Insufficient quantity for product " + request.productId());
+                        "Insufficient quantity for product " + orderItem.productId());
             }
 
-            // Mettre à jour les quantités
-            inventory.setTotalQuantity(inventory.getTotalQuantity() - request.quantity());
-            inventory.setReservedQuantity(inventory.getReservedQuantity() + request.quantity());
+            product.setTotalQuantity(product.getTotalQuantity() - orderItem.quantity());
+            ReservationDetails reservationDetails=ReservationDetails.builder()
+                    .product(product)
+                    .reservation(reservation)
+                    .quantityReserved(orderItem.quantity())
+                    .build();
+            reservation.getReservationsDetails().add(reservationDetails);
+            reservationDetailsRepository.save(reservationDetails);
+            productRepository.save(product);
 
-            // Sauvegarder les changements dans la base de données
-            inventoryRepository.save(inventory);
+
         });
+        reservationRepository.save(reservation);
     }
 
     //annulation de la commande
-    public void cancelOrder(List<InventoryRequest> requests) {
-        requests.forEach(request -> {
-            // Récupérer l'inventaire pour le produit
-            Inventory inventory = inventoryRepository.findById(request.productId())
-                    .orElseThrow(() -> new EntityNotFoundException("Product " + request.productId() + " not found"));
+    @Transactional(rollbackFor = Exception.class)
+    public void cancelOrder(UUID orderId) {
+        Reservation reservation=reservationRepository.findByOrderId(orderId).orElseThrow(() -> new EntityNotFoundException("Reservation "+ orderId+" not found"));
+        if(reservation.isCancelled()){
+            throw new ReservationAlreadyCancelledException("Reservation already cancelled");
+        }
+        reservation.getReservationsDetails().forEach(
+                reservationDetail-> {
+                    Product product = productRepository.findById(reservationDetail.getProduct().getProductId())
+                            .orElseThrow(() -> new EntityNotFoundException("Product "+ reservationDetail.getProduct().getProductId()+" not found"));
+                    product.setTotalQuantity(product.getTotalQuantity()+reservationDetail.getQuantityReserved());
+                    productRepository.save(product);
+                    reservationDetailsRepository.delete(reservationDetail);
+                    }
 
-            // Vérifier si la quantité réservée est suffisante pour l'annulation
-            if (inventory.getReservedQuantity() < request.quantity()) {
-                throw new InsufficientQuantityException(
-                        "Cannot release this product " + request.productId() + ": insufficient reserved quantity");
-            }
-
-            // Mettre à jour les quantités
-            inventory.setTotalQuantity(inventory.getTotalQuantity() + request.quantity());
-            inventory.setReservedQuantity(inventory.getReservedQuantity() - request.quantity());
-
-            // Sauvegarder les changements dans la base de données
-            inventoryRepository.save(inventory);
-        });
+        );
+        reservation.setCancelled(true);
+        reservationRepository.save(reservation);
     }
 
 
