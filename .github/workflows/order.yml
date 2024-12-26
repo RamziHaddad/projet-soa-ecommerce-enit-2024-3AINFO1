@@ -39,7 +39,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: bank-service.jar
+        name: order-service.jar
        # path: /home/runner/work/soa-test/soa-test/bank/target/bank_v2-1.1.0.jar
         path: order/target/*.jar
 
