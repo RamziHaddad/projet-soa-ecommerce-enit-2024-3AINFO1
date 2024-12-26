@@ -27,7 +27,7 @@ services:
       SHIPPING_SERVICE_URL: http://shipping-service:8090/shipping/schedule
       MAIL_SERVICE_URL: http://mail-service:8091/mail/send
     depends_on:
-      db_bank:
+      bank-service-db_bank-1:
         condition: service_healthy
 networks:
   bank-network:
