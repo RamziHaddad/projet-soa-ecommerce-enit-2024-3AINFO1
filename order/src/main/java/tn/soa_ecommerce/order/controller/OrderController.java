@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import tn.soa_ecommerce.order.dto.OrderDTO;
 import tn.soa_ecommerce.order.mapper.Mapper;
 import tn.soa_ecommerce.order.model.Order;
+import tn.soa_ecommerce.order.model.OrderStatus;
 import tn.soa_ecommerce.order.service.OrderService;
 
 import java.util.Optional;
@@ -25,11 +26,11 @@ public class OrderController {
 
     // Create Order API
     @PostMapping("/create")
-    public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderDTO request) {
+    public ResponseEntity<Boolean> createOrder(@RequestBody OrderDTO request) {
         try {
             Order order = orderMapper.mapFrom(request);
-            OrderDTO createdOrder = orderService.createOrder(order);
-            return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
+
+            return new ResponseEntity<>(orderService.createOrder(order), HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             System.out.println("error: " + e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
@@ -55,7 +56,7 @@ public class OrderController {
         }
     }
 
-   /* @PutMapping("/cancel/{id}")
+    @PutMapping("/cancel/{id}")
     public ResponseEntity<String> cancelOrder(@PathVariable UUID id) {
         try {
             boolean isCancelled = orderService.cancelOrder(id);
@@ -68,5 +69,5 @@ public class OrderController {
             System.out.println("error: " + e.getMessage());
             return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }*/
+    }
 }
