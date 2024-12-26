@@ -27,8 +27,8 @@ services:
       SHIPPING_SERVICE_URL: http://shipping-service:8090/shipping/schedule
       MAIL_SERVICE_URL: http://mail-service:8091/mail/send
 networks:
-  bank-network:
-    external: true
+#  bank-network:
+#    external: true
   global-network:
     external: true
 
