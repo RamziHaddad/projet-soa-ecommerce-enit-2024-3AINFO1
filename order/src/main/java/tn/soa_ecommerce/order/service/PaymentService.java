@@ -25,7 +25,7 @@ public class PaymentService {
     }
 
     public boolean processPayment(UUID orderId, UUID customerId, double amount) {
-        String paymentUrl = paymentServiceUrl + "/process/" + orderId;
+        String paymentUrl = paymentServiceUrl + "/process";
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("orderId", orderId);

@@ -22,7 +22,7 @@ services:
       SERVER_PORT: 8084
       CART_SERVICE_URL: http://cart-service:8081/cart
       INVENTORY_SERVICE_URL: http://inventory-service:8083/inventory
-      PAYMENT_SERVICE_URL: http://payment-service:8085/payment
+      PAYMENT_SERVICE_URL: http://payment-service:8085/payments
       SHIPPING_SERVICE_URL: http://shipping-service:8090/shipping
       MAIL_SERVICE_URL: http://mail-service:8091/mail
 networks:
