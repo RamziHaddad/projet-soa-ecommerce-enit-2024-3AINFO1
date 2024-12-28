@@ -1,1 +1,127 @@
-description
+# Cart Microservice
+
+The **Cart Microservice** manages customer shopping carts in an e-commerce architecture. It handles operations such as creating a cart, adding/removing items, clearing a cart, and retrieving cart content. This service communicates with other services via REST APIs and uses Kafka for asynchronous communication of cart updates.
+
+## Technologies
+- **Spring Boot**: Framework for building the microservice.
+- **Kafka**: Message broker for event-driven communication.
+- **PostgreSQL**: Database for storing cart data.
+- **REST APIs**: For inter-service communication.
+- **ObjectMapper**: For JSON serialization/deserialization.
+
+## Setup
+
+### Prerequisites
+- **Java 11+**
+- **Maven** or a similar dependency management tool
+- **Kafka** (running locally or via an external service)
+- **PostgreSQL** (for production) or **H2** (for local development)
+
+### Clone the Repository
+
+```bash
+git clone url_repo
+cd cart-microservice
+```
+
+### Build and Run Locally
+
+```bash
+./mvnw lean install  
+./mvnw spring-boot:run  
+```
+
+The application will start on port **8081**.
+
+
+### API Endpoints
+-------------
+
+### 1\. Get Cart for Customer
+
+*   **GET /api/cart/{customerId}**
+    
+    *   Retrieves the cart for the given customer ID.
+        
+    *   **Response**: 200 OK with cart data or empty cart if not found.
+        
+
+### 2\. Create a New Cart
+
+*   **POST /api/cart/create**
+    
+    *   Creates a new shopping cart for a customer.
+        
+    *   **Request Body**: CartDTO (optional list of items).
+        
+    *   **Response**: 201 Created with the created cart details.
+        
+
+### 3\. Add Item to Cart
+
+*   **POST /api/cart/{customerId}/add**
+    
+    *   Adds an item to the customer's cart.
+        
+    *   **Request Body**: CartItemDTO (item ID and quantity).
+        
+    *   **Response**: 200 OK with the updated cart.
+        
+
+### 4\. Remove Item from Cart
+
+*   **DELETE /api/cart/{customerId}/remove/{itemId}**
+    
+    *   Removes an item from the customer's cart.
+        
+    *   **Response**: 200 OK with the updated cart.
+        
+
+### 5\. Clear the Cart
+
+*   **DELETE /api/cart/{customerId}/clear**
+    
+    *   Clears all items from the customer's cart.
+        
+    *   **Response**: 204 No Content if successful.
+        
+
+### Kafka Integration
+-----------------
+
+*   **Topic**: cart-update-topic
+    
+    *   The Cart Microservice sends updates about cart operations (add, remove, create, clear) to the Kafka topic.
+        
+
+### Domain Models
+-------------
+
+*   **Cart**: Contains customerId, list of cartItems, and totalPrice.
+    
+*   **CartItem**: Contains itemId, name, price, quantity, and totalPrice.
+    
+*   **CartDTO**: Data Transfer Object representing a cart.
+    
+*   **CartItemDTO**: Data Transfer Object for an item in the cart.
+    
+
+### Running the Service
+-------------------
+
+1.  **Start Kafka** locally or use a managed Kafka service.
+    
+2.  **Start PostgreSQL** locally or use Docker for a quick setup.
+    
+3.  Run the service with the following command:
+``` bash
+
+ spring-boot:run 
+ ``` 
+
+### Troubleshooting
+---------------
+
+*   **Kafka Issues**: Ensure Kafka is running and the correct topics are configured.
+    
+*   **Database Issues**: Make sure PostgreSQL is properly set up and accessible.

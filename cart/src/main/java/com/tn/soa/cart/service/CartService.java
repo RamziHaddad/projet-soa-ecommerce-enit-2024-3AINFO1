@@ -6,6 +6,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.client.RestTemplate;
 
 import com.tn.soa.cart.dto.CartDTO;
 import com.tn.soa.cart.dto.CartItemDTO;
@@ -108,7 +110,7 @@ public class CartService {
                 newCart.addItem(newItem);
             }
         }
-        UUID newCustomerId = UUID.randomUUID();
+        // UUID newCustomerId = UUID.randomUUID();
         cartRepository.save(newCart);
 
         // Send Kafka message after creating new cart
