@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  order-service:
+  payment-service:
     image: ahmeddhibi/payment-service:latest  # Use a basic Node.js image if you don't want to build a custom image
     container_name: payment-service
     ports:
