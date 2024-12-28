@@ -1,10 +1,10 @@
-# Use a smaller base image, such as the ASP.NET runtime image for .NET 8.0
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-slim AS base
+# Use Alpine variant of the .NET runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS base
 WORKDIR /app
 EXPOSE 8088
 
-# Use the SDK image for building the app, then remove build dependencies later
-FROM mcr.microsoft.com/dotnet/sdk:8.0-slim AS build
+# Use the SDK image for building the app
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["ReviewService.csproj", "."]
