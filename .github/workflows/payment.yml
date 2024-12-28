@@ -21,22 +21,22 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Bun.js
-      uses: oven-sh/setup-bun@v1
-      with:
-        bun-version: latest
-
-    - name: Install dependencies with Bun.js
-      run: bun install
-
-    - name: Build with Bun.js
-      run: bun build ./index.js --outdir ./dist --target bun
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: payment-service
-        path: dist/
+    #- name: Set up Bun.js
+    #  uses: oven-sh/setup-bun@v1
+    #  with:
+    #    bun-version: latest
+#
+    #- name: Install dependencies with Bun.js
+    #  run: bun install
+#
+    #- name: Build with Bun.js
+    #  run: bun build ./index.js --outdir ./dist --target bun
+#
+    #- name: Upload artifact
+    #  uses: actions/upload-artifact@v3
+    #  with:
+    #    name: payment-service
+    #    path: dist/
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
