@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  payment_service:
+    build:
+      context: .  
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"  
+    environment:
+      - POSTGRES_HOST=db_payment  
+      - POSTGRES_PORT=5432       
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=azerty
+      - POSTGRES_DB=db_payment
+    depends_on:
+      db_payment:
+        condition: service_healthy
+    networks:
+      - global_network
+
+  db_payment:
+    image: pgvector/pgvector:pg15
+    environment:
+      POSTGRES_DB: db_payment
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: azerty
+    ports:
+      - 5438:5432  
+    volumes:
+      - ./src/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - global_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d db_payment"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+networks:
+  global_network:
+    driver: bridge
