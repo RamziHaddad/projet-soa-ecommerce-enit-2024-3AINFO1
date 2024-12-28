@@ -74,6 +74,7 @@ const updateCarteBancaire = async (req, res) => {
     } 
 }
 
+
 module.exports = {
     getCartesBancaires,
     getCartesBancairesById,
