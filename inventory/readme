@@ -1,0 +1,55 @@
+## API du Service d'Inventaire
+
+### 1. Ajouter un produit au stock
+**Méthode** : `PUT`  
+**URL** : `/inventory/{productId}`  
+**Description** :  
+Cette API permet d'ajouter un produit au stock. Si le produit existe déjà, la quantité totale est mise à jour. Sinon, un nouveau produit est créé dans la base de données.  
+**Paramètres** :  
+- **productId** (UUID) : Identifiant unique du produit.  
+- **quantity** (Integer) : Quantité de produit à ajouter.  
+**Réponse** :
+- 200 OK : Si le produit existe déjà, la quantité a été mise à jour.
+- 201 CREATED : Si le produit n'existe pas, un nouveau produit a été créé.
+---
+
+### 2. Réserver un produit
+**Méthode** : `POST`  
+**URL** : `/inventory/reserve`  
+**Description** :  
+Cette API permet de réserver des produits pour une commande. Elle vérifie si les quantités demandées sont disponibles en stock. En cas de quantité insuffisante pour l'un des produits, aucune réservation n'est effectuée (rollback).  
+**Paramètres** :  
+- **orderId** (UUID) : Identifiant unique de la commande.  
+- **products** (Liste) : Liste des produits à réserver avec leur identifiant et quantité.  
+  - **productId** (UUID) : Identifiant unique du produit.  
+  - **quantity** (Integer) : Quantité de produit à réserver.  
+
+
+
+---
+
+### 3. Libérer une commande
+**Méthode** : `POST`  
+**URL** : `/inventory/release/{orderId}`  
+**Description** :  
+Cette API permet de libérer une commande après qu'elle a été réservée. Elle marque la commande comme "libérée" et supprime les détails de réservation associés.
+**Paramètres** :  
+- **orderId** (UUID) : Identifiant unique de la commande.  
+
+
+
+---
+
+### 4. Annuler une commande
+**Méthode** : `POST`  
+**URL** : `/inventory/cancel/{orderId}`  
+**Description** :  
+Cette API permet d'annuler une commande réservée. Lors de l'annulation, la quantité réservée des produits est réintégrée au stock et les détails de la réservation sont supprimés.
+**Paramètres** :  
+- **orderId** (UUID) : Identifiant unique de la commande.  
+
+**Exceptions possibles** :  
+- `EntityNotFoundException` : La réservation n'existe pas.  
+- `ReservationAlreadyCancelledException` : La réservation a déjà été annulée.  
+
+

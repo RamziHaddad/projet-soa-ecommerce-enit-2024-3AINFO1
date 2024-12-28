@@ -14,10 +14,13 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/inventory")
-@RequiredArgsConstructor
 public class InventoryController {
 
     private final InventoryService inventoryService;
+
+    public InventoryController(InventoryService inventoryService) {
+        this.inventoryService = inventoryService;
+    }
 
     @PutMapping("/{productId}")
     public ResponseEntity<Void> receiveProduct(
@@ -31,27 +34,27 @@ public class InventoryController {
         }
     }
 
-    @PatchMapping("/release")
+    @PostMapping("/release/{orderId}")
     public ResponseEntity<Void> releaseProduct(
-            @RequestBody @Valid List<InventoryRequest> request
+             @PathVariable UUID orderId
     ) {
-        inventoryService.releaseOrder(request);
+        inventoryService.releaseOrder(orderId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PatchMapping("/reserve")
+    @PostMapping("/reserve")
     public ResponseEntity<Void> reserveProducts(
-            @RequestBody @Valid List<InventoryRequest> requests
+            @RequestBody @Valid InventoryRequest request
     ) {
-        inventoryService.reserveProduct(requests);
+        inventoryService.reserveProduct(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PatchMapping("/cancel")
+    @PostMapping("/cancel/{orderId}")
     public ResponseEntity<Void> cancelOrders(
-            @RequestBody @Valid List<InventoryRequest> requests
+            @PathVariable UUID orderId
     ) {
-        inventoryService.cancelOrder(requests);
+        inventoryService.cancelOrder(orderId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
