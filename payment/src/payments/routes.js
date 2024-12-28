@@ -4,15 +4,15 @@ const orderController = require ('../orders/controller');
 
 const router = Router();
 
-router.get('/', controller.getAllPayments);
-router.get('/explicit', controller.getAllPaymentsExplicit);
-router.get('/:id', controller.getPaymentById);
-router.get('/explicit/:id', controller.getPaymentByIdExplicit);
-router.get('/result/:id', controller.getPaymentResult);
+router.get('/', keycloak.protect('ECOMMERCE_USER', 'ECOMMERCE_ADMIN'), controller.getAllPayments);
+router.get('/explicit', keycloak.protect('ECOMMERCE_USER', 'ECOMMERCE_ADMIN'), controller.getAllPaymentsExplicit);
+router.get('/:id', keycloak.protect('ECOMMERCE_USER', 'ECOMMERCE_ADMIN'), controller.getPaymentById);
+router.get('/explicit/:id', keycloak.protect('ECOMMERCE_USER', 'ECOMMERCE_ADMIN'), controller.getPaymentByIdExplicit);
+router.get('/result/:id', keycloak.protect('ECOMMERCE_USER', 'ECOMMERCE_ADMIN'), controller.getPaymentResult);
 
-router.post('/process/', orderController.returnPaymentResult); 
-router.post('/', controller.addPayment);
+router.post('/process/', keycloak.protect('ECOMMERCE_USER', 'ECOMMERCE_ADMIN'), orderController.returnPaymentResult);
+router.post('/', keycloak.protect('ECOMMERCE_USER', 'ECOMMERCE_ADMIN'), controller.addPayment);
 
-router.put('/:id', controller.paymentWentThrough);
+router.put('/:id', keycloak.protect('ECOMMERCE_USER', 'ECOMMERCE_ADMIN'), controller.paymentWentThrough);
 
 module.exports = router;
