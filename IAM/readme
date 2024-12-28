@@ -1,1 +1,29 @@
-description
+# IAM Service
+
+## Overview
+
+The IAM Service provides secure identity and access management functionalities for user authentication and authorization within your application. It enables the management of user identities, roles, permissions, and access policies, ensuring a robust security framework.
+
+## Features
+
+- **User Registration and Profile Management**: Create and manage user accounts.
+- **Authentication via JWT (JSON Web Tokens)**: Securely authenticate users with token-based authentication.
+- **Role-Based Access Control (RBAC)**: Define roles and permissions to control user access to resources.
+- **Password Reset and Email Verification**: Enhance security and improve user experience with account recovery options.
+- **Secure API Endpoints**: Protect your API with authentication and authorization mechanisms.
+
+## Technologies Used
+
+- **Backend**: [Java](https://www.java.com/)
+- **Framework**: [Spring Boot](https://spring.io/projects/spring-boot)
+- **Database**: [PostgreSQL](https://www.postgresql.org/)
+- **Authentication**: JWT / OAuth2
+- **Testing**: Postman for API testing
+
+
+### Prerequisites
+
+- **Java**: Ensure you have Java 22 installed on your machine.
+- **PostgreSQL**: Set up PostgreSQL for your database needs.
+- **Maven**: Use Maven for dependency management .
+
