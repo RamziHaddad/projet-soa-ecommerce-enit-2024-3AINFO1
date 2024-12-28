@@ -22,7 +22,7 @@ public class PricingService {
         double totalPrice = 0;
 
         // Retrieve product details via the catalog service
-        String url = "http://localhost:8080/product/id/" + productId;  // Assuming catalog service is at this URL
+        String url = "http://catalog-service:8080/product/id/" + productId;  // Assuming catalog service is at this URL
         ProductDTO product = restTemplate.getForObject(url, ProductDTO.class);
 
         // Ensure the product exists

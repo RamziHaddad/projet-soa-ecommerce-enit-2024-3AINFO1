@@ -41,7 +41,7 @@ jobs:
       with:
         name: pricing-service.jar
        # path: /home/runner/work/soa-test/soa-test/bank/target/bank_v2-1.1.0.jar
-        path: pricing/target/*.jar
+        path: pricing/demo/demo/target/*.jar
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
