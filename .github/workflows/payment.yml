@@ -30,7 +30,7 @@ jobs:
       run: bun install
 
     - name: Build with Bun.js
-      run: bun build ./src/index.js --outdir ./dist
+      run: bun build ./index.js --outdir ./dist
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
