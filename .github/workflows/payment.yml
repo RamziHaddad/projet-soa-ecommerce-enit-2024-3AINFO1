@@ -25,12 +25,12 @@ jobs:
       uses: oven-sh/setup-bun@v1
       with:
         bun-version: latest
-        
+
     - name: Install dependencies with Bun.js
       run: bun install
 
     - name: Build with Bun.js
-      run: bun build
+      run: bun build ./src/index.js --outdir ./dist
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
