@@ -20,7 +20,7 @@ const fetchPaymentResult = async (id) => {
             cardCode: card_code, 
           };
 
-        const response = await axios.post(`http://localhost:8099/payments/`, payload);
+        const response = await axios.post(`http://bank-service:8099/payments/`, payload);
 
         switch (response.status) {
             case 200:
