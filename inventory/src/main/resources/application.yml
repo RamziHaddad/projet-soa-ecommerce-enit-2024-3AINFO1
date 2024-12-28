@@ -1,25 +1,28 @@
+server:
+  port: 8083
+
 keycloak:
   realm: ecommerce-platform
   auth-server-url: http://92.222.24.59:8080/realms/ecommerce-platform
-  resource: ecommerce-backend
+  resource: inventory-service
   credentials:
-    secret: "**********"
-  bearer-only: true  # Set to true if this is a backend service
+    secret: "6xjXZo1XpUZZ9JTRwB5cWO0HMqTpAGiv"
+  bearer-only: true
   public-client: false
-  ssl-required: external  # Set to 'none' if your Keycloak server is not using SSL
+  ssl-required: external
 
 spring:
   security:
     oauth2:
       client:
         registration:
-          keycloak:
-            client-id: ecommerce-backend
-            client-secret: "**********"
+          inventory-service:
+            client-id: inventory-service
+            client-secret: "6xjXZo1XpUZZ9JTRwB5cWO0HMqTpAGiv"
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:
-          keycloak:
+          inventory-service:
             authorization-uri: http://92.222.24.59:8080/realms/ecommerce-platform/protocol/openid-connect/auth
             token-uri: http://92.222.24.59:8080/realms/ecommerce-platform/protocol/openid-connect/token
             user-info-uri: http://92.222.24.59:8080/realms/ecommerce-platform/protocol/openid-connect/userinfo
