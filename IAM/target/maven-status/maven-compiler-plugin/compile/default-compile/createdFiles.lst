@@ -1,0 +1,5 @@
+com\IAM\controller\AuthController.class
+com\IAM\config\KeycloakRoleConverter.class
+com\IAM\IamApplication.class
+com\IAM\config\SecurityConfig.class
+com\IAM\exceptions\GlobalExceptionHandler.class

@@ -7,15 +7,15 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="inventory" />
-        <module name="IAM" />
         <module name="bank_v2" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="IAM" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="IAM" options="-parameters" />
       <module name="bank_v2" options="-parameters" />
       <module name="inventory" options="-parameters" />
     </option>
