@@ -1,4 +1,3 @@
-version: "3"
 
 services:
   db_bank:
@@ -8,15 +7,16 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: azerty
     ports:
-      - 5433:5432
+      - "5433:5432"
   db_catalog:
     image: pgvector/pgvector:pg15
     environment:
       POSTGRES_DB: db_catalog
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: azerty
+
     ports:
-      - 5434:5432
+      - "5434:5432"
   db_inventory:
     image: pgvector/pgvector:pg15
     environment:
@@ -32,7 +32,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: azerty
     ports:
-      - 5436:5432
+      - "5436:5432"
   db_order:
     image: pgvector/pgvector:pg15
     environment:
@@ -40,7 +40,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: azerty
     ports:
-      - 5437:5432
+      - "5437:5432"
   db_payment:
     image: pgvector/pgvector:pg15
     environment:
