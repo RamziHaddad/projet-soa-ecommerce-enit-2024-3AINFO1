@@ -8,16 +8,10 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
-import
-        org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticatio
-nConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.DefaultSecurityFilterChain;
-import
-        org.springframework.security.web.authentication.session.RegisterSessionAuthentica
-tionStrategy;
-import
-        org.springframework.security.web.authentication.session.SessionAuthenticationStrat
-egy;
+import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.web.client.RestTemplate;
 @KeycloakConfiguration
 public class SecurityConfig {
@@ -53,11 +47,8 @@ public class SecurityConfig {
     }
 
     private JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtAuthenticationConverter jwtAuthenticationConverter = new
-                JwtAuthenticationConverter();
-// Set a custom GrantedAuthorities converter
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new
-                KeycloakRoleConverter());
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new KeycloakRoleConverter());
         return jwtAuthenticationConverter;
     }
     @Bean
