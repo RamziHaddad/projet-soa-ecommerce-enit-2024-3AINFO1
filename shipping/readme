@@ -10,8 +10,6 @@ Technologies
     
 *   **PostgreSQL**: Database for storing customer shipping data.
     
-*   **Lombok**: To reduce boilerplate code in entity and DTO classes.
-    
 
 Setup
 -----
@@ -24,7 +22,6 @@ Setup
     
 *   **PostgreSQL** (for local or production environments)
     
-*   **Docker** (for running the infrastructure with docker-compose)
     
 
 ### Clone the Repository
