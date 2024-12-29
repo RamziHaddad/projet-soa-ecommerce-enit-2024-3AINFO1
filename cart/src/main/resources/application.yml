@@ -1,0 +1,28 @@
+server:
+  port: 8081
+
+keycloak:
+  realm: ecommerce-platform
+  auth-server-url: http://92.222.24.59:8080/realms/ecommerce-platform
+  resource: cart_client
+  credentials:
+    secret: "sdoBq1SeyOtTGVvdOtTAmJ9mw3hOJoGg"
+  bearer-only: true
+  public-client: false
+  ssl-required: external
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          cart_client:
+            client-id: cart_client
+            client-secret: "sdoBq1SeyOtTGVvdOtTAmJ9mw3hOJoGg"
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          cart_client:
+            authorization-uri: http://92.222.24.59:8080/realms/ecommerce-platform/protocol/openid-connect/auth
+            token-uri: http://92.222.24.59:8080/realms/ecommerce-platform/protocol/openid-connect/token
+            user-info-uri: http://92.222.24.59:8080/realms/ecommerce-platform/protocol/openid-connect/userinfo
