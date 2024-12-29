@@ -1,1 +1,52 @@
-description
+Shipping Microservice
+=====================
+
+The **Shipping Microservice** is responsible for managing the shipping process of paid orders in an e-commerce platform. It handles tasks such as managing customer addresses, receiving delivery orders, and tracking the delivery status.
+
+Technologies
+------------
+
+*   **Spring Boot**: Framework for building the microservice.
+    
+*   **PostgreSQL**: Database for storing customer shipping data.
+    
+*   **Lombok**: To reduce boilerplate code in entity and DTO classes.
+    
+
+Setup
+-----
+
+### Prerequisites
+
+*   **Java 17+**
+    
+*   **Maven** (for building the project)
+    
+*   **PostgreSQL** (for local or production environments)
+    
+*   **Docker** (for running the infrastructure with docker-compose)
+    
+
+### Clone the Repository
+
+```bash 
+git clone < url_repo > 
+cd shipping
+ ```
+
+### Build and Run Locally
+
+Run the following Maven command to build the project:
+
+```bash 
+./mvnw clean install  
+./mvnw spring-boot:run 
+```
+You can run the application using Maven:
+
+
+```bash 
+./mvnw spring-boot:run 
+```
+The application will start on port **8090**.
+
